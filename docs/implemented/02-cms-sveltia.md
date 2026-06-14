@@ -1,3 +1,10 @@
+# [완료] PRD-02 — Sveltia CMS 관리자 페이지 접속 문제 해결
+
+> 상태: ✅ 코드 구현 완료 (`commit ecfa5cb`)
+> 잔여: GitHub Pages 배포 + PAT 발급은 사용자 직접 필요
+
+---
+
 # PRD-02 — Sveltia CMS 관리자 페이지 접속 문제 해결
 
 ## 문제 현상
