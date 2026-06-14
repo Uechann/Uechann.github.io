@@ -2,7 +2,7 @@
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 date: '{{ .Date }}'
 draft: true
-categories: ["백엔드"]
+categories: ["우아한테크코스"]
 tags: []
 description: ""
 image: ""
@@ -12,15 +12,13 @@ image: ""
 
 > 한 줄 요약: 이 글에서 무엇을 다루는지 적어주세요.
 
-## 핵심 개념
+## 미션 / 활동 내용
 
-## 구현 / 적용
+## 배운 점
 
-```java
-// 코드 예시
-```
+## 어려웠던 점
 
-## 주의사항 / 트레이드오프
+## 앞으로의 방향
 
 ## 참고
 

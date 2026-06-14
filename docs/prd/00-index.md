@@ -9,9 +9,6 @@
 
 | 번호 | 파일 | 주제 | 상태 | 의존성 |
 |------|------|------|------|--------|
-| PRD-05 | [05-categories.md](./05-categories.md) | 카테고리 관리 UX | 🟡 보통 | PRD-03 |
-| PRD-06 | [06-post-detail.md](./06-post-detail.md) | 글 상세 + 블로그 완성도 (댓글·시리즈·아카이브) | 🟡 보통 | PRD-03 |
-| PRD-05 | [05-categories.md](./05-categories.md) | 카테고리 관리 UX | 🟡 보통 | PRD-03 |
 | PRD-06 | [06-post-detail.md](./06-post-detail.md) | 글 상세 + 블로그 완성도 (댓글·시리즈·아카이브) | 🟡 보통 | PRD-03 |
 
 ---
@@ -24,6 +21,7 @@
 | PRD-02 | [implemented/02-cms-sveltia.md](../implemented/02-cms-sveltia.md) | Sveltia CMS 카테고리 구조 정비 + CSP | `ecfa5cb` |
 | PRD-03 | [implemented/03-theme-stack.md](../implemented/03-theme-stack.md) | Stack 테마 전환 — 카드·다크모드·사이드바 | `7ef94bc` |
 | PRD-04 | [implemented/04-writing-ux.md](../implemented/04-writing-ux.md) | 글쓰기 경험 개선 — archetype·Makefile·가이드 | `TBD` |
+| PRD-05 | [implemented/05-categories.md](../implemented/05-categories.md) | 카테고리 구조 개편 — java/spring/database/infra/woowacourse | `TBD` |
 
 ---
 
@@ -39,7 +37,7 @@ Phase 2 — 디자인 전환 (완료)
   ✅ PRD-04: 글쓰기 경험 개선
 
 Phase 3 — 기능 완성
-  🟡 PRD-05: 카테고리 관리
+  ✅ PRD-05: 카테고리 관리
   🟡 PRD-06: 댓글·시리즈·아카이브
 
 Phase 4 — (이후)

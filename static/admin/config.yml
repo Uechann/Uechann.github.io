@@ -13,26 +13,103 @@ backend:
 media_folder: "static/uploads"
 public_folder: "/uploads"
 
-# ── 공통 front matter 필드 정의 ──────────────────────────────────
-# Sveltia CMS는 YAML anchor를 지원하지 않으므로 각 컬렉션에 직접 명시합니다.
-
 collections:
 
-  # ── 백엔드 ───────────────────────────────────────────────────────
-  - name: "backend"
-    label: "백엔드"
-    label_singular: "백엔드 글"
-    folder: "content/posts/backend"
+  # ── Java ─────────────────────────────────────────────────────────
+  - name: "java"
+    label: "Java"
+    label_singular: "Java 글"
+    folder: "content/posts/java"
     create: true
-    path: "{{slug}}/index"   # → content/posts/backend/<slug>/index.md (page bundle)
-    preview_path: "posts/backend/{{slug}}"
+    path: "{{slug}}/index"
+    preview_path: "posts/java/{{slug}}"
     fields:
-      - { label: "제목",  name: "title",  widget: "string" }
-      - { label: "작성일", name: "date",   widget: "datetime",
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { label: "초안",       name: "draft",       widget: "boolean", default: true }
       - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["backend"], required: false }
+          default: ["Java"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
+
+  # ── Spring ───────────────────────────────────────────────────────
+  - name: "spring"
+    label: "Spring"
+    label_singular: "Spring 글"
+    folder: "content/posts/spring"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/spring/{{slug}}"
+    fields:
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["Spring"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
+
+  # ── Database ─────────────────────────────────────────────────────
+  - name: "database"
+    label: "Database"
+    label_singular: "Database 글"
+    folder: "content/posts/database"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/database/{{slug}}"
+    fields:
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["Database"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
+
+  # ── Infra ─────────────────────────────────────────────────────────
+  - name: "infra"
+    label: "Infra"
+    label_singular: "Infra 글"
+    folder: "content/posts/infra"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/infra/{{slug}}"
+    fields:
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["Infra"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
+
+  # ── 우아한테크코스 ────────────────────────────────────────────────
+  - name: "woowacourse"
+    label: "우아한테크코스"
+    label_singular: "우아한테크코스 글"
+    folder: "content/posts/woowacourse"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/woowacourse/{{slug}}"
+    fields:
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["우아한테크코스"], required: false }
       - { label: "태그",       name: "tags",        widget: "list", required: false }
       - { label: "요약",       name: "description", widget: "string", required: false }
       - { label: "커버 이미지", name: "image",       widget: "image", required: false }
@@ -52,7 +129,7 @@ collections:
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
       - { label: "초안",       name: "draft",       widget: "boolean", default: true }
       - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["cs"], required: false }
+          default: ["CS"], required: false }
       - { label: "태그",       name: "tags",        widget: "list", required: false }
       - { label: "요약",       name: "description", widget: "string", required: false }
       - { label: "커버 이미지", name: "image",       widget: "image", required: false }

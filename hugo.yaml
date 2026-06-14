@@ -102,24 +102,30 @@ menu:
       weight: 1
       params:
         icon: home
-    - identifier: posts
-      name: 글
-      url: /posts/
-      weight: 2
-      params:
-        icon: archives
     - identifier: categories
       name: 카테고리
       url: /categories/
-      weight: 3
+      weight: 2
       params:
         icon: categories
+    - identifier: archives
+      name: 아카이브
+      url: /page/archives/
+      weight: 3
+      params:
+        icon: archives
     - identifier: search
       name: 검색
       url: /page/search/
       weight: 4
       params:
         icon: search
+    - identifier: about
+      name: 소개
+      url: /page/about/
+      weight: 5
+      params:
+        icon: user
 
   social:
     - identifier: github

@@ -11,7 +11,11 @@
 make dev
 
 # 2. 새 글 만들기 (카테고리에 맞게 선택)
-make new-backend       SLUG=spring-transaction
+make new-java          SLUG=generic-type-erasure
+make new-spring        SLUG=transaction-propagation
+make new-database      SLUG=index-b-tree
+make new-infra         SLUG=docker-compose-setup
+make new-woowacourse   SLUG=week-1-retrospect
 make new-cs            SLUG=tcp-handshake
 make new-troubleshooting SLUG=datasource-pool-error
 make new-retrospect    SLUG=june-week-1
@@ -28,16 +32,16 @@ make new-retrospect    SLUG=june-week-1
 ### 새 글 만들기
 
 ```bash
-make new-backend SLUG=jpa-n-plus-one
+make new-java SLUG=jpa-n-plus-one
 ```
 
-→ `content/posts/backend/jpa-n-plus-one/index.md` 생성  
+→ `content/posts/java/jpa-n-plus-one/index.md` 생성  
 → 카테고리·날짜·섹션 헤딩이 미리 채워진 템플릿으로 시작
 
 SLUG 규칙:
 - 영어 소문자 + 하이픈만 사용
-- 짧고 의미 있게: `spring-transaction` ✓ / `post1` ✗
-- 글 URL이 됩니다: `https://uechann.github.io/posts/backend/jpa-n-plus-one/`
+- 짧고 의미 있게: `transaction-propagation` ✓ / `post1` ✗
+- 글 URL이 됩니다: `https://uechann.github.io/posts/java/jpa-n-plus-one/`
 
 ### 로컬에서 확인하기
 
@@ -53,7 +57,7 @@ make dev
 
 ```bash
 # front matter에서 draft: true → draft: false 로 변경
-git add content/posts/backend/jpa-n-plus-one/
+git add content/posts/java/jpa-n-plus-one/
 git commit -m "post: JPA N+1 문제와 해결 방법"
 git push
 # → GitHub Actions가 자동으로 빌드·배포 (2~3분 소요)
@@ -92,7 +96,7 @@ git push
 title: "JPA N+1 문제와 해결 방법"   # 글 제목 (필수)
 date: 2026-06-14                     # 작성일 (자동 입력)
 draft: true                          # true = 로컬만 / false = 배포됨
-categories: ["백엔드"]               # 카테고리 (아래 목록 참고)
+categories: ["Java"]                 # 카테고리 (아래 목록 참고)
 tags: ["jpa", "spring", "n+1"]       # 태그 (소문자, 검색에 활용)
 description: "JPA 연관관계 조회 시 발생하는 N+1 문제를 fetch join으로 해결하는 방법"
                                      # 카드 요약 문구 + SEO
@@ -102,12 +106,16 @@ image: "cover.png"                   # 커버 이미지 (같은 폴더에 파일
 
 ### 카테고리 목록
 
-| 값 | 폴더 | 어떤 글 |
-|----|------|--------|
-| `"백엔드"` | `posts/backend/` | Spring, JPA, Java, API 설계 |
-| `"CS 기초"` | `posts/cs/` | 네트워크, OS, 자료구조, 알고리즘 |
-| `"트러블슈팅"` | `posts/troubleshooting/` | 에러 해결 기록 |
-| `"회고"` | `posts/retrospect/` | 주간/월간 회고, 일기 |
+| 값 | Makefile 명령 | 폴더 | 어떤 글 |
+|----|--------------|------|--------|
+| `"Java"` | `new-java` | `posts/java/` | Java 언어, JVM, JPA 등 |
+| `"Spring"` | `new-spring` | `posts/spring/` | Spring Boot, MVC, Security 등 |
+| `"Database"` | `new-database` | `posts/database/` | SQL, 인덱스, 트랜잭션 등 |
+| `"Infra"` | `new-infra` | `posts/infra/` | Docker, CI/CD, 서버 설정 등 |
+| `"우아한테크코스"` | `new-woowacourse` | `posts/woowacourse/` | 미션, 페어 프로그래밍, 강의 등 |
+| `"CS"` | `new-cs` | `posts/cs/` | 네트워크, OS, 자료구조 등 |
+| `"트러블슈팅"` | `new-troubleshooting` | `posts/troubleshooting/` | 에러 해결 기록 |
+| `"회고"` | `new-retrospect` | `posts/retrospect/` | 주간/월간 회고, 일기 |
 
 ---
 
@@ -116,7 +124,7 @@ image: "cover.png"                   # 커버 이미지 (같은 폴더에 파일
 글 폴더에 `cover.png` (또는 `cover.jpg`, `cover.webp`)를 넣으면 됩니다.
 
 ```
-content/posts/backend/jpa-n-plus-one/
+content/posts/java/jpa-n-plus-one/
 ├── index.md       ← 본문
 └── cover.png      ← 커버 이미지 (자동으로 카드에 표시)
 ```
@@ -138,7 +146,7 @@ image: "cover.png"
 커버 외에 본문 중간에 이미지를 넣을 때도 **같은 폴더에 파일을 두고 상대경로**로 참조합니다.
 
 ```
-content/posts/backend/jpa-n-plus-one/
+content/posts/java/jpa-n-plus-one/
 ├── index.md
 ├── cover.png
 ├── query-result.png   ← 본문 중간 이미지
