@@ -6,6 +6,8 @@ categories: ["우아한테크코스"]
 tags: []
 description: ""
 image: ""
+# series: ["시리즈명"]   # 연속 글이면 시리즈명 입력 (예: ["우테코 6기 회고"])
+# series_order: 1
 ---
 
 ## 개요

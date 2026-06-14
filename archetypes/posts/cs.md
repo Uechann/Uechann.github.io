@@ -6,6 +6,8 @@ categories: ["CS 기초"]
 tags: []
 description: ""
 image: ""
+# series: ["시리즈명"]   # 연속 글이면 시리즈명 입력
+# series_order: 1
 ---
 
 ## 개념 정리

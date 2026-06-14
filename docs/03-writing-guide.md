@@ -162,15 +162,24 @@ content/posts/java/jpa-n-plus-one/
 
 ## 시리즈 묶기
 
-여러 글을 시리즈로 묶으면 각 글 상단에 시리즈 네비게이션이 표시됩니다.
+여러 글을 시리즈로 묶으면 각 글 상단에 시리즈 네비게이션이 자동으로 표시됩니다.
+
+archetype으로 생성된 파일에 `series` 주석이 포함되어 있습니다. 주석을 해제하고 값을 입력하세요.
 
 ```yaml
 ---
 title: "Spring 트랜잭션 1 — 개념과 ACID"
-series: ["Spring 트랜잭션 완전 정복"]
-series_order: 1
+categories: ["Spring"]
+tags: ["spring", "transaction"]
+series: ["Spring 트랜잭션 완전 정복"]   # 주석 해제 + 시리즈명 입력
+series_order: 1                         # 이 글의 시리즈 내 순서
 ---
 ```
+
+**규칙:**
+- 같은 `series` 배열 값을 가진 글들이 하나의 시리즈로 묶임
+- `series_order` 숫자 오름차순으로 정렬되어 표시
+- 시리즈명은 배열 형식 (`["이름"]`)으로 입력
 
 ---
 
@@ -206,9 +215,20 @@ sidebar:
 
 ## 댓글 (giscus) 활성화 방법
 
-1. GitHub 레포 Settings → Features → **Discussions** 활성화
-2. [giscus.app](https://giscus.app) 접속 → 레포 연결 → 설정값 복사
-3. `hugo.yaml` 수정:
+giscus는 GitHub Discussions 기반 댓글 시스템입니다. 아래 순서대로 설정하면 됩니다.
+
+**Step 1 — GitHub Discussions 활성화**
+1. `github.com/Uechann/Uechann.github.io` → Settings → General
+2. Features 섹션에서 **Discussions** 체크박스 활성화
+
+**Step 2 — giscus 설정값 발급**
+1. [giscus.app](https://giscus.app) 접속
+2. Repository 입력: `Uechann/Uechann.github.io`
+3. Page ↔ Discussions 매핑: **pathname** 선택
+4. Discussion 카테고리: **General** 선택
+5. 페이지 하단에 생성된 `data-repo-id`(repoID)와 `data-category-id`(categoryID) 복사
+
+**Step 3 — hugo.yaml 수정**
 
 ```yaml
 comments:

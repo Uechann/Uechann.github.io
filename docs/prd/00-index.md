@@ -5,11 +5,9 @@
 
 ---
 
-## 미구현 PRD 목록 (우선순위 순)
+## 미구현 PRD 목록
 
-| 번호 | 파일 | 주제 | 상태 | 의존성 |
-|------|------|------|------|--------|
-| PRD-06 | [06-post-detail.md](./06-post-detail.md) | 글 상세 + 블로그 완성도 (댓글·시리즈·아카이브) | 🟡 보통 | PRD-03 |
+현재 모든 PRD 구현 완료. 아래 Phase 4 항목은 별도 PRD 없이 필요 시 진행.
 
 ---
 
@@ -21,7 +19,8 @@
 | PRD-02 | [implemented/02-cms-sveltia.md](../implemented/02-cms-sveltia.md) | Sveltia CMS 카테고리 구조 정비 + CSP | `ecfa5cb` |
 | PRD-03 | [implemented/03-theme-stack.md](../implemented/03-theme-stack.md) | Stack 테마 전환 — 카드·다크모드·사이드바 | `7ef94bc` |
 | PRD-04 | [implemented/04-writing-ux.md](../implemented/04-writing-ux.md) | 글쓰기 경험 개선 — archetype·Makefile·가이드 | `TBD` |
-| PRD-05 | [implemented/05-categories.md](../implemented/05-categories.md) | 카테고리 구조 개편 — java/spring/database/infra/woowacourse | `TBD` |
+| PRD-05 | [implemented/05-categories.md](../implemented/05-categories.md) | 카테고리 구조 개편 — java/spring/database/infra/woowacourse | `92c72af` |
+| PRD-06 | [implemented/06-post-detail.md](../implemented/06-post-detail.md) | 글 상세 완성도 — 시리즈·giscus·아카이브RSS | `TBD` |
 
 ---
 
@@ -36,12 +35,14 @@ Phase 2 — 디자인 전환 (완료)
   ✅ PRD-03: Stack 테마로 전면 교체
   ✅ PRD-04: 글쓰기 경험 개선
 
-Phase 3 — 기능 완성
+Phase 3 — 기능 완성 (완료)
   ✅ PRD-05: 카테고리 관리
-  🟡 PRD-06: 댓글·시리즈·아카이브
+  ✅ PRD-06: 댓글·시리즈·아카이브
 
 Phase 4 — (이후)
+  · giscus repoID/categoryID 발급 후 hugo.yaml에 입력 (사용자 직접)
   · 커스텀 도메인
   · 방문자 분석 (umami / goatcounter)
   · OGP 이미지 자동 생성
+  · 프로필 사진 (assets/img/avatar.png)
 ```

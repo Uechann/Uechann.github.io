@@ -6,6 +6,8 @@ categories: ["Java"]
 tags: []
 description: ""
 image: ""
+# series: ["시리즈명"]   # 연속 글이면 시리즈명 입력 (예: ["Java 완전 정복"])
+# series_order: 1
 ---
 
 ## 개요
