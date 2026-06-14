@@ -1,0 +1,21 @@
+backend:
+  name: github
+  repo: Uechann/Uechann.github.io
+  branch: main
+
+# CMS에서 업로드한 이미지 저장 위치 (레포 경로 → 본인 도메인에서 서빙됨)
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "posts"
+    label: "글"
+    folder: "content/posts"
+    create: true
+    path: "{{slug}}/index"   # page bundle 구조(content/posts/<slug>/index.md)로 생성
+    fields:
+      - { label: "제목", name: "title", widget: "string" }
+      - { label: "작성일", name: "date", widget: "datetime" }
+      - { label: "초안", name: "draft", widget: "boolean", default: false }
+      - { label: "태그", name: "tags", widget: "list", required: false }
+      - { label: "본문", name: "body", widget: "markdown" }
