@@ -1,30 +1,134 @@
 baseURL: "https://uechann.github.io/"
 locale: "ko-kr"
 title: "의찬의 개발 블로그"
-theme: "hugo-book"
+theme: "hugo-theme-stack"
 enableRobotsTXT: true
 buildDrafts: false
 buildFuture: false
-disablePathToLower: true
+hasCJKLanguage: true    # 한국어 읽는 시간 계산
+
+paginate: 10
+
+taxonomies:
+  category: categories
+  tag: tags
+  series: series
 
 markup:
   goldmark:
     renderer:
       unsafe: true
-  tableOfContents:
-    startLevel: 1
-    endLevel: 3
   highlight:
-    style: base16-snazzy
+    noClasses: false
+    codeFences: true
+    guessSyntax: true
+    lineNos: false
+    tabWidth: 4
+  tableOfContents:
+    startLevel: 2
+    endLevel: 4
+
+outputs:
+  home:
+    - HTML
+    - RSS
 
 params:
-  BookTheme: auto
-  BookSearch: true
-  BookSection: posts
-  BookToC: true
-  BookComments: false
-  BookDateFormat: "2006년 01월 02일"
-  BookRepo: "https://github.com/Uechann/Uechann.github.io"
+  mainSections:
+    - posts
+  featuredImageField: image
+  rssFullContent: true
+
+  footer:
+    since: 2026
+    customText: ""
+
+  dateFormat:
+    published: "2006년 01월 02일"
+    lastUpdated: "2006년 01월 02일"
+
+  sidebar:
+    subtitle: "백엔드 개발 학습 기록과 트러블슈팅"
+    emoji: "🛠️"
+    avatar: ""   # assets/img/avatar.png 에 본인 사진 배치 후 "img/avatar.png" 로 변경
+
+  article:
+    math: false
+    toc: true
+    readingTime: true
+    license:
+      enabled: false
+
+  widgets:
+    homepage:
+      - type: search
+      - type: archives
+        params:
+          limit: 5
+      - type: categories
+        params:
+          limit: 10
+      - type: tag-cloud
+        params:
+          limit: 10
+    page:
+      - type: toc
+
+  colorScheme:
+    toggle: true
+    default: auto   # 시스템 다크/라이트 설정 따름
+
+  comments:
+    enabled: false   # giscus repoID·categoryID 발급 후 true로 변경
+    provider: giscus
+    giscus:
+      repo: "Uechann/Uechann.github.io"
+      repoID: ""        # https://giscus.app 에서 발급
+      category: "General"
+      categoryID: ""    # https://giscus.app 에서 발급
+      mapping: pathname
+      lightTheme: light
+      darkTheme: dark_dimmed
+      reactionsEnabled: 1
+      emitMetadata: 0
+      inputPosition: top
+      lang: ko
+
+menu:
+  main:
+    - identifier: home
+      name: 홈
+      url: /
+      weight: 1
+      params:
+        icon: home
+    - identifier: posts
+      name: 글
+      url: /posts/
+      weight: 2
+      params:
+        icon: archives
+    - identifier: categories
+      name: 카테고리
+      url: /categories/
+      weight: 3
+      params:
+        icon: categories
+    - identifier: search
+      name: 검색
+      url: /page/search/
+      weight: 4
+      params:
+        icon: search
+
+  social:
+    - identifier: github
+      name: GitHub
+      url: "https://github.com/Uechann"
+      weight: 1
+      params:
+        icon: brand-github
+        newTab: true
 
 caches:
   images:

@@ -1,0 +1,116 @@
+// ── 폰트 ──────────────────────────────────────────────────────────
+// Pretendard, JetBrains Mono는 _partials/head/custom-font.html 에서 로드
+
+:root {
+    --sys-font-family: 'Pretendard', -apple-system, BlinkMacSystemFont,
+                       'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+    --base-font-family: var(--sys-font-family);
+    --code-font-family: 'JetBrains Mono', 'Fira Code', 'D2Coding', Consolas, monospace;
+}
+
+// ── 한국어 타이포그래피 ────────────────────────────────────────────
+body {
+    word-break: keep-all;       // 한국어 단어 단위 줄바꿈
+    overflow-wrap: break-word;
+}
+
+// 본문 읽기 편하게
+.article-content {
+    font-size: 1.05rem;
+    line-height: 1.85;
+
+    p {
+        margin-bottom: 1.2em;
+    }
+
+    // 헤딩 한국어 줄바꿈
+    h1, h2, h3, h4 {
+        word-break: keep-all;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+    }
+}
+
+// ── 코드 블록 ─────────────────────────────────────────────────────
+.article-content {
+    pre {
+        border-radius: 8px;
+        font-size: 0.88rem;
+        line-height: 1.6;
+    }
+
+    // 인라인 코드
+    p code,
+    li code,
+    td code {
+        font-size: 0.87em;
+        padding: 0.15em 0.45em;
+        border-radius: 4px;
+        font-variant-ligatures: normal;
+    }
+}
+
+// ── 액센트 컬러 (라이트) ──────────────────────────────────────────
+:root {
+    --accent-color: #3b82f6;            // blue-500
+    --accent-color-darker: #2563eb;     // blue-600
+    --accent-color-text: #fff;
+}
+
+// 다크 모드
+[data-scheme="dark"] {
+    --accent-color: #60a5fa;            // blue-400
+    --accent-color-darker: #3b82f6;
+    --accent-color-text: #000;
+}
+
+// ── 카드 ──────────────────────────────────────────────────────────
+:root {
+    --card-border-radius: 12px;
+}
+
+// 카드 hover 살짝 올라오는 효과
+.article-list--tile article,
+.article-list article {
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+    &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+}
+
+[data-scheme="dark"] {
+    .article-list--tile article:hover,
+    .article-list article:hover {
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    }
+}
+
+// ── 링크 ──────────────────────────────────────────────────────────
+.article-content a:not(.btn) {
+    text-underline-offset: 3px;
+
+    &:hover {
+        text-decoration: underline;
+    }
+}
+
+// ── 사이드바 ──────────────────────────────────────────────────────
+.sidebar {
+    font-size: 0.93rem;
+}
+
+.site-description {
+    font-size: 0.88rem;
+    opacity: 0.8;
+    line-height: 1.5;
+    word-break: keep-all;
+}
+
+// ── 모바일 ────────────────────────────────────────────────────────
+@media (max-width: 768px) {
+    .article-content {
+        font-size: 1rem;
+    }
+}

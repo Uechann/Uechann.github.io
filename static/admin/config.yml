@@ -30,11 +30,13 @@ collections:
       - { label: "제목",  name: "title",  widget: "string" }
       - { label: "작성일", name: "date",   widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
-      - { label: "태그",  name: "tags",   widget: "list", required: false }
-      - { label: "정렬 순서", name: "weight", widget: "number",
-          required: false, value_type: "int" }
-      - { label: "본문",  name: "body",   widget: "markdown" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["backend"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
 
   # ── CS 기초 ──────────────────────────────────────────────────────
   - name: "cs"
@@ -45,14 +47,16 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/cs/{{slug}}"
     fields:
-      - { label: "제목",  name: "title",  widget: "string" }
-      - { label: "작성일", name: "date",   widget: "datetime",
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
-      - { label: "태그",  name: "tags",   widget: "list", required: false }
-      - { label: "정렬 순서", name: "weight", widget: "number",
-          required: false, value_type: "int" }
-      - { label: "본문",  name: "body",   widget: "markdown" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["cs"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
 
   # ── 트러블슈팅 ───────────────────────────────────────────────────
   - name: "troubleshooting"
@@ -63,14 +67,16 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/troubleshooting/{{slug}}"
     fields:
-      - { label: "제목",  name: "title",  widget: "string" }
-      - { label: "작성일", name: "date",   widget: "datetime",
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
-      - { label: "태그",  name: "tags",   widget: "list", required: false }
-      - { label: "정렬 순서", name: "weight", widget: "number",
-          required: false, value_type: "int" }
-      - { label: "본문",  name: "body",   widget: "markdown" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["트러블슈팅"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }
 
   # ── 회고 ─────────────────────────────────────────────────────────
   - name: "retrospect"
@@ -81,11 +87,13 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/retrospect/{{slug}}"
     fields:
-      - { label: "제목",  name: "title",  widget: "string" }
-      - { label: "작성일", name: "date",   widget: "datetime",
+      - { label: "제목",       name: "title",       widget: "string" }
+      - { label: "작성일",     name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
-      - { label: "태그",  name: "tags",   widget: "list", required: false }
-      - { label: "정렬 순서", name: "weight", widget: "number",
-          required: false, value_type: "int" }
-      - { label: "본문",  name: "body",   widget: "markdown" }
+      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
+      - { label: "카테고리",   name: "categories",  widget: "list",
+          default: ["회고"], required: false }
+      - { label: "태그",       name: "tags",        widget: "list", required: false }
+      - { label: "요약",       name: "description", widget: "string", required: false }
+      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
+      - { label: "본문",       name: "body",        widget: "markdown" }

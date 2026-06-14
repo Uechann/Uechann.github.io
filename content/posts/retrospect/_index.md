@@ -1,5 +1,4 @@
 ---
 title: "회고"
-weight: 4
-bookCollapseSection: true
+description: "개발 일기, 스터디 회고, 성장 기록"
 ---
