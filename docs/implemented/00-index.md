@@ -7,5 +7,6 @@
 
 | 번호 | 파일 | 내용 | 커밋 |
 |------|------|------|------|
-| 01 | [01-theme-book.md](./01-theme-book.md) | Hugo Book 테마 전환 + Pretendard 폰트 | `84cd804` |
+| 01 | [01-theme-book.md](./01-theme-book.md) | Hugo Book 테마 전환 (→ PRD-03에서 Stack으로 교체됨) | `84cd804` |
 | 02 | [02-cms-sveltia.md](./02-cms-sveltia.md) | Sveltia CMS 카테고리 구조 정비 + CSP | `ecfa5cb` |
+| 03 | [03-theme-stack.md](./03-theme-stack.md) | Stack 테마 전환 — 카드 레이아웃·다크모드·사이드바 | `7ef94bc` |
