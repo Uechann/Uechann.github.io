@@ -3,9 +3,63 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- CSP: GitHub API 호출 및 Sveltia CMS 스크립트 로드 허용 -->
+    <meta http-equiv="Content-Security-Policy"
+      content="
+        default-src 'self';
+        script-src  'self' https://unpkg.com;
+        style-src   'self' 'unsafe-inline' https://unpkg.com;
+        font-src    'self' https://unpkg.com data:;
+        img-src     'self' data: blob: https:;
+        connect-src 'self'
+                    https://api.github.com
+                    https://uploads.github.com
+                    https://raw.githubusercontent.com
+                    https://unpkg.com;
+        frame-src   'none';
+      ">
     <title>Content Manager</title>
+    <style>
+      /* 스크립트 로드 전 로딩 화면 */
+      #cms-loading {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        background: #fff;
+        color: #555;
+        font-family: system-ui, sans-serif;
+        font-size: 14px;
+      }
+      @media (prefers-color-scheme: dark) {
+        #cms-loading { background: #1a1a2e; color: #ccc; }
+      }
+      .spinner {
+        width: 32px; height: 32px;
+        border: 3px solid #e0e0e0;
+        border-top-color: #555;
+        border-radius: 50%;
+        animation: spin .8s linear infinite;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
+    <div id="cms-loading">
+      <div class="spinner"></div>
+      <span>CMS 로딩 중…</span>
+    </div>
+
+    <script>
+      // CMS가 마운트되면 로딩 화면 제거
+      window.addEventListener('load', function () {
+        var el = document.getElementById('cms-loading');
+        if (el) el.remove();
+      });
+    </script>
     <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
   </body>
 </html>

@@ -3,19 +3,89 @@ backend:
   repo: Uechann/Uechann.github.io
   branch: main
 
-# CMS에서 업로드한 이미지 저장 위치 (레포 경로 → 본인 도메인에서 서빙됨)
-media_folder: "assets/uploads"
-public_folder: "/assets/uploads"
+# 로컬 개발 시 아래 줄을 주석 해제하고, 별도 터미널에서
+# `npx @sveltia/cms-backend` 를 실행하면 로컬 파일시스템에 직접 쓸 수 있습니다.
+# 배포 전에는 반드시 다시 주석 처리하세요.
+# local_backend: true
+
+# CMS에서 업로드한 이미지 저장 위치
+# static/ 하위 파일은 Hugo가 그대로 public/으로 복사해 /uploads/... 로 서빙합니다.
+media_folder: "static/uploads"
+public_folder: "/uploads"
+
+# ── 공통 front matter 필드 정의 ──────────────────────────────────
+# Sveltia CMS는 YAML anchor를 지원하지 않으므로 각 컬렉션에 직접 명시합니다.
 
 collections:
-  - name: "posts"
-    label: "글"
-    folder: "content/posts"
+
+  # ── 백엔드 ───────────────────────────────────────────────────────
+  - name: "backend"
+    label: "백엔드"
+    label_singular: "백엔드 글"
+    folder: "content/posts/backend"
     create: true
-    path: "{{slug}}/index"   # page bundle 구조(content/posts/<slug>/index.md)로 생성
+    path: "{{slug}}/index"   # → content/posts/backend/<slug>/index.md (page bundle)
+    preview_path: "posts/backend/{{slug}}"
     fields:
-      - { label: "제목", name: "title", widget: "string" }
-      - { label: "작성일", name: "date", widget: "datetime" }
-      - { label: "초안", name: "draft", widget: "boolean", default: false }
-      - { label: "태그", name: "tags", widget: "list", required: false }
-      - { label: "본문", name: "body", widget: "markdown" }
+      - { label: "제목",  name: "title",  widget: "string" }
+      - { label: "작성일", name: "date",   widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
+      - { label: "태그",  name: "tags",   widget: "list", required: false }
+      - { label: "정렬 순서", name: "weight", widget: "number",
+          required: false, value_type: "int" }
+      - { label: "본문",  name: "body",   widget: "markdown" }
+
+  # ── CS 기초 ──────────────────────────────────────────────────────
+  - name: "cs"
+    label: "CS 기초"
+    label_singular: "CS 기초 글"
+    folder: "content/posts/cs"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/cs/{{slug}}"
+    fields:
+      - { label: "제목",  name: "title",  widget: "string" }
+      - { label: "작성일", name: "date",   widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
+      - { label: "태그",  name: "tags",   widget: "list", required: false }
+      - { label: "정렬 순서", name: "weight", widget: "number",
+          required: false, value_type: "int" }
+      - { label: "본문",  name: "body",   widget: "markdown" }
+
+  # ── 트러블슈팅 ───────────────────────────────────────────────────
+  - name: "troubleshooting"
+    label: "트러블슈팅"
+    label_singular: "트러블슈팅 글"
+    folder: "content/posts/troubleshooting"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/troubleshooting/{{slug}}"
+    fields:
+      - { label: "제목",  name: "title",  widget: "string" }
+      - { label: "작성일", name: "date",   widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
+      - { label: "태그",  name: "tags",   widget: "list", required: false }
+      - { label: "정렬 순서", name: "weight", widget: "number",
+          required: false, value_type: "int" }
+      - { label: "본문",  name: "body",   widget: "markdown" }
+
+  # ── 회고 ─────────────────────────────────────────────────────────
+  - name: "retrospect"
+    label: "회고"
+    label_singular: "회고 글"
+    folder: "content/posts/retrospect"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/retrospect/{{slug}}"
+    fields:
+      - { label: "제목",  name: "title",  widget: "string" }
+      - { label: "작성일", name: "date",   widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안",  name: "draft",  widget: "boolean", default: false }
+      - { label: "태그",  name: "tags",   widget: "list", required: false }
+      - { label: "정렬 순서", name: "weight", widget: "number",
+          required: false, value_type: "int" }
+      - { label: "본문",  name: "body",   widget: "markdown" }
