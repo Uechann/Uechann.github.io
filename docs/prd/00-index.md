@@ -9,8 +9,8 @@
 
 | 번호 | 파일 | 주제 | 상태 | 의존성 |
 |------|------|------|------|--------|
-| PRD-03 | [03-theme-stack.md](./03-theme-stack.md) | Stack 테마 전환 + 전체 디자인 재설계 | 🔴 최우선 | 없음 |
-| PRD-04 | [04-writing-ux.md](./04-writing-ux.md) | 글쓰기 경험 개선 ("쓰고 싶어지는" 블로그) | 🔴 중요 | PRD-03 |
+| PRD-05 | [05-categories.md](./05-categories.md) | 카테고리 관리 UX | 🟡 보통 | PRD-03 |
+| PRD-06 | [06-post-detail.md](./06-post-detail.md) | 글 상세 + 블로그 완성도 (댓글·시리즈·아카이브) | 🟡 보통 | PRD-03 |
 | PRD-05 | [05-categories.md](./05-categories.md) | 카테고리 관리 UX | 🟡 보통 | PRD-03 |
 | PRD-06 | [06-post-detail.md](./06-post-detail.md) | 글 상세 + 블로그 완성도 (댓글·시리즈·아카이브) | 🟡 보통 | PRD-03 |
 
@@ -20,8 +20,10 @@
 
 | 번호 | 파일 | 주제 | 커밋 |
 |------|------|------|------|
-| PRD-01 | [implemented/01-theme-book.md](../implemented/01-theme-book.md) | Hugo Book 테마 전환 (→ PRD-03에서 Stack으로 교체 예정) | `84cd804` |
+| PRD-01 | [implemented/01-theme-book.md](../implemented/01-theme-book.md) | Hugo Book 테마 전환 (→ PRD-03에서 Stack으로 교체) | `84cd804` |
 | PRD-02 | [implemented/02-cms-sveltia.md](../implemented/02-cms-sveltia.md) | Sveltia CMS 카테고리 구조 정비 + CSP | `ecfa5cb` |
+| PRD-03 | [implemented/03-theme-stack.md](../implemented/03-theme-stack.md) | Stack 테마 전환 — 카드·다크모드·사이드바 | `7ef94bc` |
+| PRD-04 | [implemented/04-writing-ux.md](../implemented/04-writing-ux.md) | 글쓰기 경험 개선 — archetype·Makefile·가이드 | `TBD` |
 
 ---
 
@@ -32,9 +34,9 @@ Phase 1 — 기반 (완료)
   ✅ PRD-01: Hugo Book 테마
   ✅ PRD-02: CMS 설정
 
-Phase 2 — 디자인 전환 (현재)
-  🔴 PRD-03: Stack 테마로 전면 교체
-  🔴 PRD-04: 글쓰기 경험 개선
+Phase 2 — 디자인 전환 (완료)
+  ✅ PRD-03: Stack 테마로 전면 교체
+  ✅ PRD-04: 글쓰기 경험 개선
 
 Phase 3 — 기능 완성
   🟡 PRD-05: 카테고리 관리
