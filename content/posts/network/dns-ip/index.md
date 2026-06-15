@@ -1,7 +1,7 @@
 ---
 title: "DNS에서 IP로 주소 변환 과정"
 date: "2026-06-15"
-draft: true
+draft: false
 categories: ["Network"]
 tags: ["DNS", "IP"]
 ---
