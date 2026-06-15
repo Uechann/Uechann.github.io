@@ -1,65 +1,956 @@
 <!doctype html>
 <html lang="ko">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <!-- CSP: GitHub API 호출 및 Sveltia CMS 스크립트 로드 허용 -->
-    <meta http-equiv="Content-Security-Policy"
-      content="
-        default-src 'self';
-        script-src  'self' https://unpkg.com;
-        style-src   'self' 'unsafe-inline' https://unpkg.com;
-        font-src    'self' https://unpkg.com data:;
-        img-src     'self' data: blob: https:;
-        connect-src 'self'
-                    https://api.github.com
-                    https://uploads.github.com
-                    https://raw.githubusercontent.com
-                    https://unpkg.com;
-        frame-src   'none';
-      ">
-    <title>Content Manager</title>
-    <style>
-      /* 스크립트 로드 전 로딩 화면 */
-      #cms-loading {
-        position: fixed;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 12px;
-        background: #fff;
-        color: #555;
-        font-family: system-ui, sans-serif;
-        font-size: 14px;
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy" content="
+    default-src 'self';
+    script-src  'self' https://unpkg.com;
+    style-src   'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net;
+    font-src    'self' https://cdn.jsdelivr.net data:;
+    img-src     'self' data: blob: https:;
+    connect-src 'self' https://api.github.com https://uploads.github.com https://raw.githubusercontent.com;
+    frame-src   'none';
+  ">
+  <title>블로그 관리자 — 의찬의 개발 블로그</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link rel="stylesheet" href="https://unpkg.com/easymde/dist/easymde.min.css" />
+  <style>
+    /* ── Design tokens ─────────────────────────────────── */
+    :root {
+      --bg:       #f3f4f6;
+      --surface:  #ffffff;
+      --surface2: #f9fafb;
+      --border:   #e5e7eb;
+      --text:     #111827;
+      --muted:    #6b7280;
+      --accent:   #3b82f6;
+      --accent-d: #2563eb;
+      --accent-l: rgba(59,130,246,.10);
+      --danger:   #ef4444;
+      --success:  #10b981;
+      --warn:     #f59e0b;
+      --radius:   12px;
+      --radius-s: 8px;
+      --shadow:   0 1px 3px rgba(0,0,0,.08);
+      --shadow-m: 0 4px 12px rgba(0,0,0,.08);
+      --sidebar:  220px;
+      --font: 'Pretendard Variable','Pretendard',-apple-system,BlinkMacSystemFont,'Apple SD Gothic Neo',sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:       #0f172a;
+        --surface:  #1e293b;
+        --surface2: #1e293b;
+        --border:   #334155;
+        --text:     #f1f5f9;
+        --muted:    #94a3b8;
+        --shadow:   0 1px 3px rgba(0,0,0,.4);
+        --shadow-m: 0 4px 12px rgba(0,0,0,.35);
       }
-      @media (prefers-color-scheme: dark) {
-        #cms-loading { background: #1a1a2e; color: #ccc; }
-      }
-      .spinner {
-        width: 32px; height: 32px;
-        border: 3px solid #e0e0e0;
-        border-top-color: #555;
-        border-radius: 50%;
-        animation: spin .8s linear infinite;
-      }
-      @keyframes spin { to { transform: rotate(360deg); } }
-    </style>
-  </head>
-  <body>
-    <div id="cms-loading">
-      <div class="spinner"></div>
-      <span>CMS 로딩 중…</span>
-    </div>
+    }
 
-    <script>
-      // CMS가 마운트되면 로딩 화면 제거
-      window.addEventListener('load', function () {
-        var el = document.getElementById('cms-loading');
-        if (el) el.remove();
-      });
-    </script>
-    <script src="https://unpkg.com/@sveltia/cms/dist/sveltia-cms.js"></script>
-  </body>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font); background: var(--bg); color: var(--text);
+           font-size: 15px; line-height: 1.6; min-height: 100vh; }
+    a { color: var(--accent); text-decoration: none; }
+    button { cursor: pointer; font-family: inherit; font-size: inherit; }
+    input, textarea, select { font-family: inherit; font-size: inherit; }
+
+    /* ── Buttons ───────────────────────────────────────── */
+    .btn { display:inline-flex; align-items:center; gap:6px;
+           padding:8px 16px; border-radius:var(--radius-s);
+           font-size:14px; font-weight:500; border:none; transition:all .15s; white-space:nowrap; }
+    .btn-primary  { background:var(--accent);  color:#fff; }
+    .btn-primary:hover  { background:var(--accent-d); }
+    .btn-secondary { background:var(--surface); color:var(--text); border:1px solid var(--border); }
+    .btn-secondary:hover { background:var(--bg); }
+    .btn-danger { background:var(--danger); color:#fff; }
+    .btn-danger:hover { filter:brightness(.9); }
+    .btn-ghost  { background:transparent; color:var(--muted); }
+    .btn-ghost:hover  { color:var(--text); background:var(--accent-l); }
+    .btn-sm { padding:5px 12px; font-size:13px; }
+
+    /* ── Layout ────────────────────────────────────────── */
+    .layout { display:flex; min-height:100vh; }
+    .sidebar {
+      width:var(--sidebar); flex-shrink:0;
+      background:var(--surface); border-right:1px solid var(--border);
+      display:flex; flex-direction:column;
+      position:sticky; top:0; height:100vh; overflow-y:auto;
+    }
+    .sidebar-logo { padding:20px 16px 14px; border-bottom:1px solid var(--border); }
+    .sidebar-logo .blog-name { font-size:14px; font-weight:700; }
+    .sidebar-logo .sub { font-size:11px; color:var(--muted); margin-top:2px; }
+    .sidebar-nav { flex:1; padding:10px 8px; }
+    .nav-group { margin-bottom:14px; }
+    .nav-group-label { font-size:10.5px; font-weight:700; color:var(--muted);
+                       text-transform:uppercase; letter-spacing:.07em;
+                       padding:0 8px; margin-bottom:3px; }
+    .nav-item { display:flex; align-items:center; gap:8px;
+                padding:7px 8px; border-radius:var(--radius-s);
+                font-size:13.5px; color:var(--text);
+                cursor:pointer; border:none; background:none;
+                width:100%; text-align:left; transition:all .12s; }
+    .nav-item:hover { background:var(--accent-l); color:var(--accent); }
+    .nav-item.active { background:var(--accent-l); color:var(--accent); font-weight:600; }
+    .nav-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .sidebar-footer { padding:10px 8px; border-top:1px solid var(--border); display:flex; flex-direction:column; gap:3px; }
+
+    .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+    .topbar { background:var(--surface); border-bottom:1px solid var(--border);
+              padding:12px 24px; display:flex; align-items:center; justify-content:space-between;
+              position:sticky; top:0; z-index:10; }
+    .topbar-title { font-size:16px; font-weight:600; }
+    .topbar-actions { display:flex; gap:8px; align-items:center; }
+    .content { padding:24px; flex:1; }
+    .content-inner { max-width:960px; }
+
+    /* ── Login ─────────────────────────────────────────── */
+    .login-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px; }
+    .login-card { width:100%; max-width:440px; background:var(--surface);
+                  border:1px solid var(--border); border-radius:var(--radius);
+                  padding:40px; box-shadow:var(--shadow-m); }
+    .login-logo { text-align:center; margin-bottom:32px; }
+    .login-logo .icon { font-size:40px; }
+    .login-logo h1 { font-size:21px; font-weight:700; margin-top:10px; }
+    .login-logo p { font-size:13px; color:var(--muted); margin-top:4px; }
+
+    /* ── Form ──────────────────────────────────────────── */
+    .form-group { margin-bottom:16px; }
+    .form-label { display:block; font-size:13px; font-weight:500; color:var(--muted); margin-bottom:6px; }
+    .form-input { width:100%; padding:9px 12px; background:var(--bg);
+                  border:1px solid var(--border); border-radius:var(--radius-s);
+                  color:var(--text); outline:none; transition:border-color .15s; }
+    .form-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-l); }
+    .form-input::placeholder { color:var(--muted); }
+    textarea.form-input { resize:vertical; min-height:80px; line-height:1.5; }
+
+    /* toggle */
+    .toggle-wrap { display:flex; align-items:center; gap:10px; }
+    .toggle { position:relative; width:40px; height:22px; display:inline-block; }
+    .toggle input { opacity:0; width:0; height:0; position:absolute; }
+    .toggle-track { position:absolute; inset:0; border-radius:22px;
+                    background:var(--border); transition:.2s; cursor:pointer; }
+    .toggle-track::before { content:''; position:absolute; width:16px; height:16px;
+                             border-radius:50%; left:3px; top:3px; background:#fff; transition:.2s; }
+    .toggle input:checked ~ .toggle-track { background:var(--accent); }
+    .toggle input:checked ~ .toggle-track::before { transform:translateX(18px); }
+
+    /* tags */
+    .tags-wrap { display:flex; flex-wrap:wrap; gap:6px; padding:6px 8px;
+                 background:var(--bg); border:1px solid var(--border);
+                 border-radius:var(--radius-s); min-height:40px; cursor:text; }
+    .tags-wrap:focus-within { border-color:var(--accent); box-shadow:0 0 0 3px var(--accent-l); }
+    .tag-chip { display:inline-flex; align-items:center; gap:4px;
+                background:var(--accent-l); color:var(--accent);
+                border-radius:4px; padding:2px 8px; font-size:12px; font-weight:500; }
+    .tag-remove { background:none; border:none; cursor:pointer; color:var(--accent);
+                  font-size:14px; line-height:1; padding:0; display:flex; align-items:center; }
+    .tag-input { border:none; background:transparent; outline:none;
+                 font-family:inherit; font-size:13px; color:var(--text); min-width:80px; flex:1; }
+
+    /* category pills */
+    .cat-pills { display:flex; flex-wrap:wrap; gap:6px; }
+    .cat-pill { display:inline-flex; align-items:center; gap:5px;
+                padding:5px 11px; border-radius:20px; font-size:12.5px;
+                border:1.5px solid var(--border); cursor:pointer;
+                transition:all .12s; user-select:none; }
+    .cat-pill input { position:absolute; opacity:0; width:0; height:0; }
+    .cat-pill.on { border-color:var(--accent); background:var(--accent-l); color:var(--accent); font-weight:600; }
+
+    /* badges */
+    .badge { display:inline-block; padding:2px 7px; border-radius:4px; font-size:11px; font-weight:600; }
+    .badge-draft { background:rgba(245,158,11,.13); color:var(--warn); }
+    .badge-pub   { background:rgba(16,185,129,.13);  color:var(--success); }
+
+    /* ── Dashboard ─────────────────────────────────────── */
+    .stat-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; margin-bottom:24px; }
+    .stat-card { background:var(--surface); border:1px solid var(--border);
+                 border-radius:var(--radius); padding:16px; cursor:pointer; transition:all .15s; }
+    .stat-card:hover { border-color:var(--accent); box-shadow:var(--shadow-m); transform:translateY(-2px); }
+    .stat-dot { width:10px; height:10px; border-radius:50%; margin-bottom:10px; }
+    .stat-label { font-size:12px; color:var(--muted); font-weight:500; }
+    .stat-count { font-size:28px; font-weight:700; line-height:1.1; margin-top:4px; }
+
+    /* ── Post list ─────────────────────────────────────── */
+    .post-list { display:flex; flex-direction:column; gap:8px; }
+    .post-item { background:var(--surface); border:1px solid var(--border);
+                 border-radius:var(--radius-s); padding:14px 16px;
+                 display:flex; align-items:center; gap:12px; transition:border-color .12s; }
+    .post-item:hover { border-color:var(--accent); }
+    .post-info { flex:1; min-width:0; }
+    .post-title { font-size:14.5px; font-weight:600; }
+    .post-meta { font-size:12px; color:var(--muted); margin-top:3px; display:flex; align-items:center; gap:8px; }
+    .post-actions { display:flex; gap:6px; flex-shrink:0; }
+
+    /* ── Editor ────────────────────────────────────────── */
+    .ed-title { width:100%; font-size:24px; font-weight:700;
+                border:none; background:transparent; color:var(--text);
+                outline:none; padding:0 0 12px; margin-bottom:20px;
+                border-bottom:2px solid var(--border); }
+    .ed-title:focus { border-bottom-color:var(--accent); }
+    .ed-title::placeholder { color:var(--muted); font-weight:400; }
+    .ed-slug-preview { font-size:12px; color:var(--muted); margin-top:4px; }
+    .ed-slug-preview span { color:var(--accent); }
+    .ed-meta { display:grid; grid-template-columns:160px auto; gap:16px; margin-bottom:16px; align-items:start; }
+    .ed-footer { display:flex; justify-content:space-between; align-items:center;
+                 padding-top:16px; margin-top:16px; border-top:1px solid var(--border); }
+
+    /* EasyMDE overrides */
+    .EasyMDEContainer .CodeMirror {
+      border-radius:0 0 var(--radius-s) var(--radius-s);
+      font-family:'JetBrains Mono','Fira Code',monospace; font-size:13.5px;
+      background:var(--bg); color:var(--text); border-color:var(--border);
+    }
+    .editor-toolbar { border-color:var(--border) !important; background:var(--surface) !important; }
+    .editor-toolbar button { color:var(--muted) !important; }
+    .editor-toolbar button:hover, .editor-toolbar button.active {
+      background:var(--accent-l) !important; border-color:var(--accent) !important; color:var(--accent) !important;
+    }
+    .editor-toolbar i.separator { border-color:var(--border) !important; }
+
+    /* ── Toast ─────────────────────────────────────────── */
+    #toasts { position:fixed; bottom:24px; right:24px; z-index:999; display:flex; flex-direction:column; gap:8px; }
+    .toast { padding:12px 18px; border-radius:var(--radius-s); font-size:14px; font-weight:500;
+             box-shadow:var(--shadow-m); animation:tIn .2s ease; max-width:340px; }
+    .toast-success { background:var(--success); color:#fff; }
+    .toast-error   { background:var(--danger);  color:#fff; }
+    .toast-info    { background:var(--accent);  color:#fff; }
+    @keyframes tIn { from { opacity:0; transform:translateY(6px); } }
+
+    /* ── Misc ──────────────────────────────────────────── */
+    .sec-title { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase;
+                 letter-spacing:.06em; margin-bottom:10px; }
+    .divider { height:1px; background:var(--border); margin:24px 0; }
+    .empty { text-align:center; padding:48px; color:var(--muted); }
+    .empty-icon { font-size:40px; margin-bottom:12px; }
+    .spinner { width:24px; height:24px; border:2.5px solid var(--border);
+               border-top-color:var(--accent); border-radius:50%;
+               animation:spin .7s linear infinite; margin:48px auto; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+  </style>
+</head>
+<body>
+<div id="app"></div>
+<div id="toasts"></div>
+<script src="https://unpkg.com/easymde/dist/easymde.min.js"></script>
+<script>
+/* ══════════════════════════════════════════════════════
+   Config
+══════════════════════════════════════════════════════ */
+const REPO   = 'Uechann/Uechann.github.io';
+const BRANCH = 'main';
+const GH_API = 'https://api.github.com';
+
+const CATS = [
+  { key:'java',             label:'Java',         group:'개념학습',       color:'#f59e0b' },
+  { key:'spring',           label:'Spring',        group:'개념학습',       color:'#10b981' },
+  { key:'database',         label:'Database',      group:'개념학습',       color:'#6366f1' },
+  { key:'network',          label:'Network',       group:'개념학습',       color:'#06b6d4' },
+  { key:'infra',            label:'Infra',         group:'개념학습',       color:'#8b5cf6' },
+  { key:'wooteco-mission',  label:'우테코 미션',   group:'우아한테크코스', color:'#ec4899' },
+  { key:'wooteco-study',    label:'우테코 스터디', group:'우아한테크코스', color:'#f97316' },
+  { key:'wooteco-activity', label:'우테코 활동',  group:'우아한테크코스', color:'#14b8a6' },
+  { key:'troubleshooting',  label:'트러블슈팅',   group:'기타',           color:'#ef4444' },
+  { key:'retrospect',       label:'회고',          group:'기타',           color:'#84cc16' },
+];
+const CAT = Object.fromEntries(CATS.map(c => [c.key, c]));
+
+/* ══════════════════════════════════════════════════════
+   State
+══════════════════════════════════════════════════════ */
+const S = {
+  pat:    sessionStorage.getItem('admin_pat') || '',
+  view:   'dashboard',  // login | dashboard | posts | editor | about
+  catKey: null,
+  posts:  null,         // null=loading, []=[...]
+  edit:   null,         // {isNew, catKey, slug, sha, fm, body}
+  counts: {},           // catKey → number
+  mde:    null,
+};
+
+/* ══════════════════════════════════════════════════════
+   GitHub API
+══════════════════════════════════════════════════════ */
+async function gh(method, path, body) {
+  const r = await fetch(`${GH_API}${path}`, {
+    method,
+    headers: {
+      Authorization: `token ${S.pat}`,
+      Accept: 'application/vnd.github.v3+json',
+      'Content-Type': 'application/json',
+    },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (r.status === 204) return null;
+  const json = await r.json();
+  if (!r.ok) throw new Error(json.message || `GitHub ${r.status}`);
+  return json;
+}
+
+const ghGet  = p      => gh('GET',    p);
+const ghPut  = (p, b) => gh('PUT',    p, b);
+const ghDel  = (p, b) => gh('DELETE', p, b);
+
+function enc(str) { return btoa(unescape(encodeURIComponent(str))); }
+function dec(str) { return decodeURIComponent(escape(atob(str.replace(/\n/g, '')))); }
+
+async function getFile(path) {
+  const d = await ghGet(`/repos/${REPO}/contents/${path}`);
+  return { content: dec(d.content), sha: d.sha };
+}
+
+async function saveFile(path, content, sha, msg) {
+  const body = { message: msg, content: enc(content), branch: BRANCH };
+  if (sha) body.sha = sha;
+  return ghPut(`/repos/${REPO}/contents/${path}`, body);
+}
+
+async function delFile(path, sha, msg) {
+  return ghDel(`/repos/${REPO}/contents/${path}`, { message: msg, sha, branch: BRANCH });
+}
+
+async function lsDir(path) {
+  try {
+    const d = await ghGet(`/repos/${REPO}/contents/${path}`);
+    return Array.isArray(d) ? d : [];
+  } catch (e) {
+    if (/404|Not Found/.test(e.message)) return [];
+    throw e;
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   Front Matter
+══════════════════════════════════════════════════════ */
+function parseMd(raw) {
+  const m = raw.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n?([\s\S]*)$/);
+  if (!m) return { fm: {}, body: raw };
+  const fm = {};
+  for (const line of m[1].split('\n')) {
+    const t = line.trim();
+    if (!t || t[0] === '#') continue;
+    const ci = t.indexOf(':');
+    if (ci < 1) continue;
+    const k = t.slice(0, ci).trim();
+    let v   = t.slice(ci + 1).trim();
+    if (v === 'true')  { fm[k] = true;  continue; }
+    if (v === 'false') { fm[k] = false; continue; }
+    if (/^\d+$/.test(v)) { fm[k] = +v; continue; }
+    if (v[0] === '[' && v.endsWith(']')) {
+      const inner = v.slice(1, -1).trim();
+      fm[k] = inner ? inner.split(',').map(s => s.trim().replace(/^["']|["']$/g, '')) : [];
+      continue;
+    }
+    fm[k] = v.replace(/^["']|["']$/g, '');
+  }
+  return { fm, body: m[2].trim() };
+}
+
+function buildPostMd(fm, body) {
+  const L = ['---'];
+  const a = (k, v) => {
+    if (v == null || v === '') return;
+    if (typeof v === 'boolean') { L.push(`${k}: ${v}`); return; }
+    if (typeof v === 'number')  { L.push(`${k}: ${v}`); return; }
+    if (Array.isArray(v))       { L.push(v.length ? `${k}: [${v.map(x=>`"${x}"`).join(', ')}]` : `${k}: []`); return; }
+    L.push(`${k}: "${v}"`);
+  };
+  a('title',        fm.title ?? '');
+  a('date',         fm.date  ?? fmtDate(new Date()));
+  a('draft',        fm.draft ?? true);
+  a('categories',   fm.categories ?? []);
+  a('tags',         fm.tags ?? []);
+  if (fm.description) a('description', fm.description);
+  if (fm.image)       a('image',       fm.image);
+  if (fm.series && fm.series.length) a('series', fm.series);
+  if (fm.series_order) a('series_order', fm.series_order);
+  L.push('---', '', body);
+  return L.join('\n');
+}
+
+function buildAboutMd(title, body) {
+  return `---\ntitle: "${title}"\nslug: about\n---\n\n${body}`;
+}
+
+/* ══════════════════════════════════════════════════════
+   Utils
+══════════════════════════════════════════════════════ */
+function fmtDate(d) { return d.toISOString().slice(0, 10); }
+
+function toSlug(s) {
+  return s.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-').replace(/-+/g, '-');
+}
+
+function esc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function $  (sel, ctx = document) { return ctx.querySelector(sel); }
+function $$ (sel, ctx = document) { return [...ctx.querySelectorAll(sel)]; }
+
+function toast(msg, type = 'info') {
+  const el = document.createElement('div');
+  el.className = `toast toast-${type}`;
+  el.textContent = msg;
+  document.getElementById('toasts').appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+
+/* ══════════════════════════════════════════════════════
+   Render
+══════════════════════════════════════════════════════ */
+function render() {
+  destroyMde();
+  const app = document.getElementById('app');
+  if (!S.pat) { app.innerHTML = tLogin(); return; }
+  const main =
+    S.view === 'dashboard' ? tDashboard() :
+    S.view === 'posts'     ? tPosts()     :
+    S.view === 'editor'    ? tEditor()    :
+    S.view === 'about'     ? tAbout()     : '';
+  app.innerHTML = tLayout(main);
+  if (S.view === 'editor') initEditor();
+  if (S.view === 'about')  initAbout();
+}
+
+/* ── Login ───────────────────────────────────────── */
+function tLogin() {
+  return `
+  <div class="login-wrap">
+    <div class="login-card">
+      <div class="login-logo">
+        <div class="icon">🛠️</div>
+        <h1>의찬의 개발 블로그</h1>
+        <p>관리자 페이지</p>
+      </div>
+      <div class="form-group">
+        <label class="form-label">GitHub Personal Access Token</label>
+        <input id="pat-in" type="password" class="form-input"
+          placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off" />
+      </div>
+      <button id="login-btn" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:4px">
+        로그인
+      </button>
+      <p style="font-size:12px;color:var(--muted);margin-top:16px;line-height:1.75">
+        토큰 발급: GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic)<br/>
+        필요 권한: <strong>repo</strong> (전체 선택)
+      </p>
+    </div>
+  </div>`;
+}
+
+/* ── Layout ──────────────────────────────────────── */
+function tLayout(content) {
+  const groups = [...new Set(CATS.map(c => c.group))];
+  const navGroups = groups.map(g => `
+    <div class="nav-group">
+      <div class="nav-group-label">${esc(g)}</div>
+      ${CATS.filter(c => c.group === g).map(c => `
+        <button class="nav-item ${S.view==='posts' && S.catKey===c.key ? 'active' : ''}"
+          data-act="posts" data-cat="${c.key}">
+          <span class="nav-dot" style="background:${c.color}"></span>${esc(c.label)}
+        </button>`).join('')}
+    </div>`).join('');
+
+  const title =
+    S.view === 'dashboard' ? '대시보드' :
+    S.view === 'posts'     ? (CAT[S.catKey]?.label ?? '') :
+    S.view === 'editor'    ? (S.edit?.isNew ? '새 글 작성' : '글 편집') :
+    '소개 페이지 편집';
+
+  const topRight =
+    S.view === 'posts'
+      ? `<button class="btn btn-primary btn-sm" data-act="new-post">+ 새 글</button>`
+      : S.view !== 'dashboard'
+      ? `<button class="btn btn-ghost btn-sm" data-act="dashboard">← 대시보드</button>`
+      : '';
+
+  return `
+  <div class="layout">
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <div class="blog-name">🛠️ 의찬의 블로그</div>
+        <div class="sub">관리자</div>
+      </div>
+      <div class="sidebar-nav">
+        <div class="nav-group">
+          <button class="nav-item ${S.view==='dashboard'?'active':''}" data-act="dashboard">
+            📊 대시보드
+          </button>
+        </div>
+        ${navGroups}
+      </div>
+      <div class="sidebar-footer">
+        <button class="nav-item" data-act="about">✏️ 소개 편집</button>
+        <a href="/" target="_blank" class="nav-item" style="text-decoration:none">🔗 블로그 보기</a>
+        <button class="nav-item" data-act="logout" style="color:var(--muted)">🚪 로그아웃</button>
+      </div>
+    </nav>
+    <div class="main">
+      <div class="topbar">
+        <div class="topbar-title">${esc(title)}</div>
+        <div class="topbar-actions">${topRight}</div>
+      </div>
+      <div class="content"><div class="content-inner">${content}</div></div>
+    </div>
+  </div>`;
+}
+
+/* ── Dashboard ───────────────────────────────────── */
+function tDashboard() {
+  const groups = [...new Set(CATS.map(c => c.group))];
+  const statGroups = groups.map(g => `
+    <div style="margin-bottom:28px">
+      <div class="sec-title">${esc(g)}</div>
+      <div class="stat-grid">
+        ${CATS.filter(c=>c.group===g).map(c=>`
+          <div class="stat-card" data-act="posts" data-cat="${c.key}">
+            <div class="stat-dot" style="background:${c.color}"></div>
+            <div class="stat-label">${esc(c.label)}</div>
+            <div class="stat-count">${S.counts[c.key] ?? '—'}</div>
+          </div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  return `
+  <div style="margin-bottom:24px">
+    <h2 style="font-size:20px;font-weight:700;margin-bottom:4px">안녕하세요! 👋</h2>
+    <p style="color:var(--muted);font-size:14px">카테고리를 선택해 글을 작성하고 관리하세요.</p>
+  </div>
+  ${statGroups}
+  <div class="divider"></div>
+  <div>
+    <div class="sec-title">빠른 글쓰기</div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px">
+      ${CATS.map(c=>`
+        <button class="btn btn-secondary btn-sm" data-act="quick-new" data-cat="${c.key}">
+          <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${c.color}"></span>
+          + ${esc(c.label)}
+        </button>`).join('')}
+    </div>
+  </div>`;
+}
+
+/* ── Posts ───────────────────────────────────────── */
+function tPosts() {
+  if (S.posts === null) return '<div class="spinner"></div>';
+  if (!S.posts.length) return `
+    <div class="empty">
+      <div class="empty-icon">📝</div>
+      <div style="font-weight:600;margin-bottom:6px">글이 없습니다</div>
+      <div style="font-size:13px">+ 새 글 버튼을 눌러 첫 번째 글을 작성해보세요.</div>
+    </div>`;
+  return `
+  <div class="post-list">
+    ${S.posts.map(p=>`
+      <div class="post-item">
+        <div class="post-info">
+          <div class="post-title">${esc(p.title || p.slug)}</div>
+          <div class="post-meta">
+            ${esc(p.date || '')}
+            ${p.draft
+              ? '<span class="badge badge-draft">초안</span>'
+              : '<span class="badge badge-pub">발행됨</span>'}
+          </div>
+        </div>
+        <div class="post-actions">
+          <button class="btn btn-secondary btn-sm" data-act="edit-post" data-slug="${esc(p.slug)}">편집</button>
+        </div>
+      </div>`).join('')}
+  </div>`;
+}
+
+/* ── Editor ──────────────────────────────────────── */
+function tEditor() {
+  const e = S.edit; if (!e) return '';
+  const fm = e.fm;
+  const catPills = CATS.map(c => {
+    const on = (fm.categories||[]).includes(c.label);
+    return `
+    <label class="cat-pill ${on?'on':''}" data-cat-label="${esc(c.label)}">
+      <input type="checkbox" value="${esc(c.label)}" ${on?'checked':''} />
+      <span class="nav-dot" style="background:${c.color};width:7px;height:7px"></span>
+      ${esc(c.label)}
+    </label>`;
+  }).join('');
+
+  const tagChips = (fm.tags||[]).map(t=>`
+    <span class="tag-chip" data-tag="${esc(t)}">
+      ${esc(t)}<button class="tag-remove" data-rm-tag="${esc(t)}">×</button>
+    </span>`).join('');
+
+  const seriesVal = (fm.series||[])[0] || '';
+
+  return `
+  <input id="ed-title" class="ed-title" type="text"
+    placeholder="글 제목을 입력하세요" value="${esc(fm.title||'')}" />
+
+  ${e.isNew ? `
+  <div class="form-group">
+    <label class="form-label">URL Slug <small style="font-weight:400;color:var(--muted)">(영어 소문자·하이픈)</small></label>
+    <input id="ed-slug" class="form-input" style="max-width:380px"
+      placeholder="my-post-title" value="${esc(e.slug||'')}" />
+    <div class="ed-slug-preview">URL: <span>/posts/${esc(e.catKey)}/<span id="slug-val">${esc(e.slug||'')}</span>/</span></div>
+  </div>` : `
+  <div style="font-size:13px;color:var(--muted);margin-bottom:20px">
+    URL: /posts/${esc(e.catKey)}/${esc(e.slug)}/
+  </div>`}
+
+  <div class="ed-meta">
+    <div class="form-group" style="margin:0">
+      <div class="form-label">작성일</div>
+      <input id="ed-date" class="form-input" type="date"
+        value="${esc(fm.date || fmtDate(new Date()))}" />
+    </div>
+    <div class="form-group" style="margin:0">
+      <div class="form-label">공개 여부</div>
+      <div class="toggle-wrap" style="margin-top:6px">
+        <label class="toggle">
+          <input id="ed-draft" type="checkbox" ${fm.draft!==false?'checked':''} />
+          <span class="toggle-track"></span>
+        </label>
+        <span id="draft-lbl" style="font-size:13px;color:var(--muted)">
+          ${fm.draft!==false ? '초안 (비공개)' : '발행됨 (공개)'}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="form-label">카테고리</div>
+    <div class="cat-pills" id="cat-pills">${catPills}</div>
+  </div>
+
+  <div class="form-group">
+    <div class="form-label">태그 <small style="font-weight:400;color:var(--muted)">(Enter 또는 쉼표로 추가)</small></div>
+    <div class="tags-wrap" id="tags-wrap">
+      ${tagChips}
+      <input id="tag-in" class="tag-input" placeholder="${(fm.tags||[]).length?'':'태그 입력...'}" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="ed-desc">요약 <small style="font-weight:400;color:var(--muted)">(카드에 표시되는 한 줄 소개)</small></label>
+    <input id="ed-desc" class="form-input" type="text"
+      value="${esc(fm.description||'')}" placeholder="이 글을 한 문장으로 설명하세요" />
+  </div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+    <div>
+      <label class="form-label" for="ed-img">커버 이미지 파일명</label>
+      <input id="ed-img" class="form-input" type="text"
+        value="${esc(fm.image||'')}" placeholder="cover.png" />
+      <div style="font-size:11px;color:var(--muted);margin-top:4px">같은 폴더에 이미지 파일을 두세요</div>
+    </div>
+    <div>
+      <label class="form-label" for="ed-series">시리즈명</label>
+      <input id="ed-series" class="form-input" type="text"
+        value="${esc(seriesVal)}" placeholder="Spring 완전 정복" />
+    </div>
+  </div>
+
+  <div class="form-group">
+    <div class="form-label">본문 (Markdown)</div>
+    <textarea id="ed-body">${esc(e.body||'')}</textarea>
+  </div>
+
+  <div class="ed-footer">
+    <div>
+      ${!e.isNew ? `<button class="btn btn-danger btn-sm" data-act="del-post">삭제</button>` : ''}
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-secondary" data-act="${e.isNew?'dashboard':'back-posts'}">취소</button>
+      <button class="btn btn-secondary" data-act="save-draft">초안 저장</button>
+      <button class="btn btn-primary"   data-act="publish">발행 🚀</button>
+    </div>
+  </div>`;
+}
+
+/* ── About ───────────────────────────────────────── */
+function tAbout() {
+  const e = S.edit || { fm:{}, body:'' };
+  return `
+  <div style="max-width:800px">
+    <div class="form-group">
+      <label class="form-label">페이지 제목</label>
+      <input id="ab-title" class="form-input" style="max-width:360px"
+        value="${esc(e.fm.title||'소개')}" />
+    </div>
+    <div class="form-group">
+      <div class="form-label">내용 (Markdown)</div>
+      <textarea id="ab-body">${esc(e.body||'')}</textarea>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:16px">
+      <button class="btn btn-secondary" data-act="dashboard">취소</button>
+      <button class="btn btn-primary"   data-act="save-about">저장</button>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════
+   EasyMDE
+══════════════════════════════════════════════════════ */
+function destroyMde() {
+  if (S.mde) { try { S.mde.toTextArea(); S.mde.cleanup(); } catch(_){} S.mde = null; }
+}
+
+function makeMde(id, minH = '360px') {
+  S.mde = new EasyMDE({
+    element: document.getElementById(id),
+    spellChecker: false, autofocus: false,
+    toolbar: ['bold','italic','heading','|','quote','unordered-list','ordered-list','|','link','|','preview','side-by-side','fullscreen','|','guide'],
+    status: false, minHeight: minH,
+  });
+}
+
+function initEditor() {
+  const e = S.edit;
+  if (!e) return;
+
+  // Slug auto-gen
+  if (e.isNew) {
+    const titleEl = $('#ed-title'), slugEl = $('#ed-slug'), slVal = $('#slug-val');
+    let manual = false;
+    slugEl.addEventListener('input', () => { manual = true; if(slVal) slVal.textContent = slugEl.value; });
+    titleEl.addEventListener('input', () => {
+      if (!manual) { const s = toSlug(titleEl.value); slugEl.value = s; if(slVal) slVal.textContent = s; }
+    });
+  }
+
+  // Draft toggle label
+  const draftCb = $('#ed-draft'), draftLbl = $('#draft-lbl');
+  draftCb.addEventListener('change', () => {
+    draftLbl.textContent = draftCb.checked ? '초안 (비공개)' : '발행됨 (공개)';
+  });
+
+  // Category pills
+  $$('.cat-pill').forEach(pill => {
+    pill.addEventListener('change', () => pill.classList.toggle('on', pill.querySelector('input').checked));
+  });
+
+  // Tags
+  const tagIn = $('#tag-in'), tagsWrap = $('#tags-wrap');
+  tagIn.addEventListener('keydown', ev => {
+    if ((ev.key === 'Enter' || ev.key === ',') && tagIn.value.trim()) {
+      ev.preventDefault(); addTag(tagIn.value.trim().replace(',','')); tagIn.value = '';
+    }
+    if (ev.key === 'Backspace' && !tagIn.value) {
+      const chips = $$('.tag-chip', tagsWrap); if (chips.length) chips.at(-1).remove();
+    }
+  });
+  tagsWrap.addEventListener('click', ev => {
+    const btn = ev.target.closest('[data-rm-tag]');
+    if (btn) btn.closest('.tag-chip').remove();
+  });
+
+  makeMde('ed-body');
+}
+
+function initAbout() { makeMde('ab-body'); }
+
+function addTag(tag) {
+  const wrap = $('#tags-wrap'), inp = $('#tag-in');
+  if (!tag || $$('.tag-chip',wrap).some(c=>c.dataset.tag===tag)) return;
+  const chip = document.createElement('span');
+  chip.className = 'tag-chip'; chip.dataset.tag = tag;
+  chip.innerHTML = `${esc(tag)}<button class="tag-remove" data-rm-tag="${esc(tag)}">×</button>`;
+  chip.querySelector('.tag-remove').addEventListener('click', () => chip.remove());
+  wrap.insertBefore(chip, inp);
+}
+
+/* ══════════════════════════════════════════════════════
+   Actions
+══════════════════════════════════════════════════════ */
+// Single delegated listener
+document.addEventListener('click', ev => {
+  // login
+  if (ev.target.id === 'login-btn' || (ev.target.closest('#login-btn'))) { doLogin(); return; }
+
+  const el = ev.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act;
+  if (act === 'dashboard')  { S.view='dashboard'; render(); }
+  else if (act === 'posts') { loadPosts(el.dataset.cat); }
+  else if (act === 'new-post')  { openNew(S.catKey); }
+  else if (act === 'quick-new') { openNew(el.dataset.cat); }
+  else if (act === 'edit-post') { openEdit(el.dataset.slug); }
+  else if (act === 'back-posts'){ loadPosts(S.edit?.catKey); }
+  else if (act === 'save-draft'){ savePost(true); }
+  else if (act === 'publish')   { savePost(false); }
+  else if (act === 'del-post')  { delPost(); }
+  else if (act === 'about')     { loadAbout(); }
+  else if (act === 'save-about'){ saveAbout(); }
+  else if (act === 'logout')    { logout(); }
+});
+
+document.addEventListener('keydown', ev => {
+  if (!S.pat) {
+    const inp = $('#pat-in');
+    if (ev.key === 'Enter' && inp && document.activeElement === inp) doLogin();
+  }
+});
+
+/* ── Auth ────────────────────────────────────────── */
+function doLogin() {
+  const v = ($('#pat-in')?.value || '').trim();
+  if (!v) { toast('토큰을 입력해주세요', 'error'); return; }
+  S.pat = v; sessionStorage.setItem('admin_pat', v);
+  S.view = 'dashboard'; render(); loadCounts();
+}
+
+function logout() {
+  S.pat = ''; sessionStorage.removeItem('admin_pat');
+  S.view = 'login'; render();
+}
+
+/* ── Counts ──────────────────────────────────────── */
+async function loadCounts() {
+  await Promise.allSettled(CATS.map(async c => {
+    const items = await lsDir(`content/posts/${c.key}`);
+    S.counts[c.key] = items.filter(i => i.type === 'dir').length;
+  }));
+  if (S.view === 'dashboard') render();
+}
+
+/* ── Posts ───────────────────────────────────────── */
+async function loadPosts(catKey) {
+  S.catKey = catKey; S.view = 'posts'; S.posts = null; render();
+  try {
+    const items = await lsDir(`content/posts/${catKey}`);
+    const dirs  = items.filter(i => i.type === 'dir');
+    const posts = await Promise.all(dirs.map(async dir => {
+      try {
+        const { content } = await getFile(`content/posts/${catKey}/${dir.name}/index.md`);
+        const { fm } = parseMd(content);
+        return { slug: dir.name, title: fm.title, date: fm.date, draft: fm.draft };
+      } catch { return { slug: dir.name, title: dir.name, date: '', draft: true }; }
+    }));
+    S.posts = posts.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  } catch (err) {
+    toast('목록을 불러오지 못했습니다: ' + err.message, 'error'); S.posts = [];
+  }
+  render();
+}
+
+/* ── Editor ──────────────────────────────────────── */
+function openNew(catKey) {
+  const cat = CAT[catKey];
+  S.catKey = catKey;
+  S.edit = {
+    isNew: true, catKey, slug: '', sha: null,
+    fm: { title:'', date:fmtDate(new Date()), draft:true, categories:[cat?.label??catKey], tags:[], description:'', image:'' },
+    body: defaultBody(catKey),
+  };
+  S.view = 'editor'; render();
+}
+
+async function openEdit(slug) {
+  const path = `content/posts/${S.catKey}/${slug}/index.md`;
+  try {
+    const { content, sha } = await getFile(path);
+    const { fm, body } = parseMd(content);
+    S.edit = { isNew:false, catKey:S.catKey, slug, sha, fm, body };
+    S.view = 'editor'; render();
+  } catch (err) { toast('글을 불러오지 못했습니다: ' + err.message, 'error'); }
+}
+
+async function savePost(asDraft) {
+  const e = S.edit; if (!e) return;
+  const title = ($('#ed-title')?.value || '').trim();
+  if (!title) { toast('제목을 입력해주세요', 'error'); return; }
+
+  let slug = e.slug;
+  if (e.isNew) {
+    slug = ($('#ed-slug')?.value || '').trim() || toSlug(title);
+    if (!slug) { toast('슬러그를 입력해주세요', 'error'); return; }
+  }
+
+  const fm = {
+    title,
+    date:         $('#ed-date')?.value  || fmtDate(new Date()),
+    draft:        asDraft ? true : !$('#ed-draft')?.checked === false ? ($('#ed-draft')?.checked ?? true) : false,
+    categories:   $$('.cat-pill input:checked').map(i => i.value),
+    tags:         $$('.tag-chip').map(c => c.dataset.tag),
+    description:  ($('#ed-desc')?.value  || '').trim() || undefined,
+    image:        ($('#ed-img')?.value   || '').trim() || undefined,
+    series:       ($('#ed-series')?.value||'').trim() ? [$('#ed-series').value.trim()] : undefined,
+  };
+  // Resolve draft: save-draft → true, publish → false
+  fm.draft = asDraft;
+
+  const body    = S.mde ? S.mde.value() : ($('#ed-body')?.value || '');
+  const content = buildPostMd(fm, body);
+  const path    = `content/posts/${e.catKey}/${slug}/index.md`;
+  const msg     = e.isNew ? `post: ${title}` : `update: ${title}`;
+
+  try {
+    const res = await saveFile(path, content, e.sha, msg);
+    e.sha    = res?.content?.sha ?? null;
+    e.isNew  = false; e.slug = slug; e.fm = fm; e.body = body;
+    S.counts[e.catKey] = (S.counts[e.catKey] || 0) + (e.isNew ? 1 : 0);
+    toast(asDraft ? '초안으로 저장했습니다' : '발행했습니다 🎉', 'success');
+  } catch (err) { toast('저장 실패: ' + err.message, 'error'); }
+}
+
+async function delPost() {
+  const e = S.edit; if (!e || e.isNew) return;
+  if (!confirm(`"${e.fm.title||e.slug}" 글을 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+  const path = `content/posts/${e.catKey}/${e.slug}/index.md`;
+  try {
+    let sha = e.sha;
+    if (!sha) { const f = await getFile(path); sha = f.sha; }
+    await delFile(path, sha, `delete: ${e.fm.title||e.slug}`);
+    toast('삭제했습니다', 'success');
+    await loadPosts(e.catKey);
+  } catch (err) { toast('삭제 실패: ' + err.message, 'error'); }
+}
+
+/* ── About ───────────────────────────────────────── */
+async function loadAbout() {
+  try {
+    const { content, sha } = await getFile('content/page/about/index.md');
+    const { fm, body } = parseMd(content);
+    S.edit = { sha, fm, body }; S.view = 'about'; render();
+  } catch (err) { toast('소개 페이지를 불러오지 못했습니다: ' + err.message, 'error'); }
+}
+
+async function saveAbout() {
+  const e = S.edit;
+  const title   = ($('#ab-title')?.value || '소개').trim();
+  const body    = S.mde ? S.mde.value() : ($('#ab-body')?.value || '');
+  const content = buildAboutMd(title, body);
+  try {
+    const res = await saveFile('content/page/about/index.md', content, e.sha, 'update: 소개 페이지');
+    e.sha = res?.content?.sha ?? null; e.fm.title = title; e.body = body;
+    toast('소개 페이지를 저장했습니다', 'success');
+  } catch (err) { toast('저장 실패: ' + err.message, 'error'); }
+}
+
+/* ══════════════════════════════════════════════════════
+   Default body templates
+══════════════════════════════════════════════════════ */
+function defaultBody(key) {
+  const T = {
+    java:              `## 개요\n\n> 한 줄 요약\n\n## 핵심 개념\n\n## 코드 예시\n\n\`\`\`java\n\n\`\`\`\n\n## 주의사항\n\n## 참고\n\n-`,
+    spring:            `## 개요\n\n> 한 줄 요약\n\n## 배경 / 문제\n\n## 핵심 개념\n\n## 구현\n\n\`\`\`java\n\n\`\`\`\n\n## 주의사항\n\n## 참고\n\n-`,
+    database:          `## 개요\n\n> 한 줄 요약\n\n## 핵심 개념\n\n## 쿼리 / 예시\n\n\`\`\`sql\n\n\`\`\`\n\n## 주의사항\n\n## 참고\n\n-`,
+    network:           `## 개요\n\n> 한 줄 요약\n\n## 배경 지식\n\n## 동작 원리\n\n## 예시\n\n## 정리\n\n## 참고\n\n-`,
+    infra:             `## 개요\n\n> 한 줄 요약\n\n## 배경 / 문제\n\n## 구성 / 설정\n\n\`\`\`yaml\n\n\`\`\`\n\n## 과정\n\n## 결과 / 검증\n\n## 참고\n\n-`,
+    'wooteco-mission': `## 미션 개요\n\n> 미션명과 핵심 요구사항 한 줄 요약\n\n## 설계 고민\n\n## 구현 과정\n\n\`\`\`java\n\n\`\`\`\n\n## 코드 리뷰 피드백\n\n## 리팩터링\n\n## 배운 점\n\n## 참고\n\n-`,
+    'wooteco-study':   `## 주제\n\n> 이번 스터디에서 다룬 핵심 주제\n\n## 핵심 내용\n\n## 토론 내용\n\n## 더 공부할 것\n\n## 참고\n\n-`,
+    'wooteco-activity':`## 활동 개요\n\n> 어떤 활동이었는지 한 줄 요약\n\n## 내용\n\n## 인상 깊었던 점\n\n## 배운 점 / 느낀 점\n\n## 참고\n\n-`,
+    troubleshooting:   `## 문제 상황\n\n> 어떤 에러/문제가 발생했는지 설명\n\n## 환경\n\n| 항목 | 버전 |\n|------|------|\n| OS | |\n| 언어/프레임워크 | |\n\n## 원인 분석\n\n## 해결 방법\n\n\`\`\`bash\n\n\`\`\`\n\n## 결론 / 배운 점\n\n## 참고\n\n-`,
+    retrospect:        `## 이번에 한 일\n\n## 잘한 것\n\n## 아쉬운 것\n\n## 다음에 할 것\n`,
+  };
+  return T[key] || '## 내용\n\n';
+}
+
+/* ══════════════════════════════════════════════════════
+   Init
+══════════════════════════════════════════════════════ */
+if (S.pat) { loadCounts(); }
+render();
+</script>
+</body>
 </html>
