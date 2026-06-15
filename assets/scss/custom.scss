@@ -15,18 +15,46 @@ body {
     overflow-wrap: break-word;
 }
 
-// ── 액센트 컬러 ───────────────────────────────────────────────────
+// ── 디자인 토큰 (관리자 페이지 디자인 체계와 통일) ──────────────────
 :root {
+    // 액센트
     --accent-color:        #3b82f6;
     --accent-color-darker: #2563eb;
     --accent-color-text:   #fff;
     --card-border-radius:  12px;
+
+    // 배경·카드 (관리자 --bg / --surface 대응)
+    --body-background:    #f3f4f6;
+    --body-text-color:    #374151;
+
+    // 카드 구분선
+    --card-separator-color: rgba(229, 231, 235, .8);
 }
 
 [data-scheme="dark"] {
+    // 액센트
     --accent-color:        #60a5fa;
     --accent-color-darker: #3b82f6;
     --accent-color-text:   #000;
+
+    // 배경·카드 (관리자 dark --bg / --surface 대응)
+    --body-background:           #0f172a;
+    --body-text-color:           #e2e8f0;
+    --card-background:           #1e293b;
+    --card-text-color-main:      #f1f5f9;
+    --card-text-color-secondary: #94a3b8;
+    --card-separator-color:      rgba(51, 65, 85, .6);
+}
+
+// 카드 테두리 — 관리자 --border와 동일한 미묘한 선
+.card {
+    border: 1px solid rgba(0, 0, 0, .06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .04);
+}
+
+[data-scheme="dark"] .card {
+    border-color: rgba(255, 255, 255, .06);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, .2);
 }
 
 // ════════════════════════════════════════════════════════════════

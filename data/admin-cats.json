@@ -1,0 +1,19 @@
+{
+  "groups": [
+    { "key": "개념학습",      "icon": "📚" },
+    { "key": "우아한테크코스", "icon": "🏫" },
+    { "key": "기타",         "icon": "🗂️" }
+  ],
+  "cats": [
+    { "key": "java",             "label": "Java",         "icon": "☕", "color": "#f59e0b", "group": "개념학습" },
+    { "key": "spring",           "label": "Spring",        "icon": "🌱", "color": "#10b981", "group": "개념학습" },
+    { "key": "database",         "label": "Database",      "icon": "🗄️", "color": "#6366f1", "group": "개념학습" },
+    { "key": "network",          "label": "Network",       "icon": "🌐", "color": "#06b6d4", "group": "개념학습" },
+    { "key": "infra",            "label": "Infra",         "icon": "⚙️", "color": "#8b5cf6", "group": "개념학습" },
+    { "key": "wooteco-mission",  "label": "우테코 미션",   "icon": "🎯", "color": "#ec4899", "group": "우아한테크코스" },
+    { "key": "wooteco-study",    "label": "우테코 스터디", "icon": "📚", "color": "#f97316", "group": "우아한테크코스" },
+    { "key": "wooteco-activity", "label": "우테코 활동",   "icon": "🎉", "color": "#14b8a6", "group": "우아한테크코스" },
+    { "key": "troubleshooting",  "label": "트러블슈팅",    "icon": "🔧", "color": "#ef4444", "group": "기타" },
+    { "key": "retrospect",       "label": "회고",           "icon": "💭", "color": "#84cc16", "group": "기타" }
+  ]
+}

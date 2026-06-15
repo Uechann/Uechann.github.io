@@ -1,29 +1,29 @@
-{{- $ctx   := .Context -}}
-{{- $terms := index $ctx.Site.Taxonomies "categories" -}}
-{{- $data  := index hugo.Data "catgroups" -}}
+{{- $ctx    := .Context -}}
+{{- $terms  := index $ctx.Site.Taxonomies "categories" -}}
+{{- $config := index hugo.Data "admin-cats" -}}
 
 <section class="widget grouped-categories-widget">
   <h2 class="widget-title section-title">카테고리</h2>
   <div class="widget-body">
-    {{- range $data.groups -}}
-      {{- $group := . -}}
+    {{- range $config.groups -}}
+      {{- $groupKey := .key -}}
       <div class="cg-group">
-        <div class="cg-group-label">{{ $group.label }}</div>
+        <div class="cg-group-label">{{ .icon }} {{ $groupKey }}</div>
         <ul class="cg-list">
-          {{- range $group.cats -}}
+          {{- range $config.cats -}}
+            {{- if ne .group $groupKey -}}{{- continue -}}{{- end -}}
             {{- $item := . -}}
-            {{/* Try lowercase key first, then original */}}
             {{- $term := index $terms $item.key -}}
             {{- if not $term -}}{{- $term = index $terms (lower $item.key) -}}{{- end -}}
             {{- $count := 0 -}}
             {{- if $term -}}{{- $count = len $term -}}{{- end -}}
-            {{- $url  := printf "/categories/%s/" ($item.key | urlize) -}}
+            {{- $url := printf "/categories/%s/" ($item.key | urlize) -}}
             {{- $catPage := $ctx.Site.GetPage (printf "categories/%s" $item.key) -}}
             {{- if $catPage -}}{{- $url = $catPage.RelPermalink -}}{{- end -}}
             <li class="cg-item{{ if eq $count 0 }} cg-empty{{ end }}">
               <a href="{{ $url }}">
                 <span class="cg-icon">{{ $item.icon }}</span>
-                <span class="cg-name">{{ $item.name }}</span>
+                <span class="cg-name">{{ $item.label }}</span>
                 {{- if gt $count 0 -}}
                   <span class="cg-count">{{ $count }}</span>
                 {{- end -}}
