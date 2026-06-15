@@ -41,17 +41,17 @@ params:
     published: "2006년 01월 02일"
 
   comments:
-    enabled: false
+    enabled: true
     provider: giscus
     giscus:
       repo: "Uechann/Uechann.github.io"
-      repoID: ""
+      repoID: "R_kgDOS6ULvw"
       category: "General"
-      categoryID: ""
+      categoryID: "DIC_kwDOS6ULv84C_Lb8"
       mapping: pathname
       reactionsEnabled: 1
       emitMetadata: 0
-      inputPosition: top
+      inputPosition: bottom
       lang: ko
       lightTheme: light
       darkTheme: dark_dimmed
