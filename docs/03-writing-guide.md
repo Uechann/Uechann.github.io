@@ -11,14 +11,16 @@
 make dev
 
 # 2. 새 글 만들기 (카테고리에 맞게 선택)
-make new-java          SLUG=generic-type-erasure
-make new-spring        SLUG=transaction-propagation
-make new-database      SLUG=index-b-tree
-make new-infra         SLUG=docker-compose-setup
-make new-woowacourse   SLUG=week-1-retrospect
-make new-cs            SLUG=tcp-handshake
-make new-troubleshooting SLUG=datasource-pool-error
-make new-retrospect    SLUG=june-week-1
+make new-java              SLUG=generic-type-erasure
+make new-spring            SLUG=transaction-propagation
+make new-database          SLUG=index-b-tree
+make new-network           SLUG=tcp-three-way-handshake
+make new-infra             SLUG=docker-compose-setup
+make new-wooteco-mission   SLUG=level1-racing-car
+make new-wooteco-study     SLUG=db-index-study
+make new-wooteco-activity  SLUG=level1-demo-day
+make new-troubleshooting   SLUG=datasource-pool-error
+make new-retrospect        SLUG=june-week-1
 
 # 3. 생성된 파일을 에디터에서 열어 작성
 # 4. 브라우저에서 http://localhost:1313 으로 확인
@@ -106,16 +108,30 @@ image: "cover.png"                   # 커버 이미지 (같은 폴더에 파일
 
 ### 카테고리 목록
 
+**개념학습**
+
 | 값 | Makefile 명령 | 폴더 | 어떤 글 |
 |----|--------------|------|--------|
-| `"Java"` | `new-java` | `posts/java/` | Java 언어, JVM, JPA 등 |
-| `"Spring"` | `new-spring` | `posts/spring/` | Spring Boot, MVC, Security 등 |
-| `"Database"` | `new-database` | `posts/database/` | SQL, 인덱스, 트랜잭션 등 |
-| `"Infra"` | `new-infra` | `posts/infra/` | Docker, CI/CD, 서버 설정 등 |
-| `"우아한테크코스"` | `new-woowacourse` | `posts/woowacourse/` | 미션, 페어 프로그래밍, 강의 등 |
-| `"CS"` | `new-cs` | `posts/cs/` | 네트워크, OS, 자료구조 등 |
+| `"Java"` | `new-java` | `posts/java/` | Java 언어, JVM, GC, OOP, 자료구조 |
+| `"Spring"` | `new-spring` | `posts/spring/` | Spring Boot, MVC, Security, AOP, IoC/DI |
+| `"Database"` | `new-database` | `posts/database/` | SQL, 인덱스, 정규화, 트랜잭션, JPA |
+| `"Network"` | `new-network` | `posts/network/` | HTTP, TCP/IP, DNS, REST, 웹 통신 |
+| `"Infra"` | `new-infra` | `posts/infra/` | Docker, CI/CD, GitHub Actions, Linux |
+
+**우아한테크코스**
+
+| 값 | Makefile 명령 | 폴더 | 어떤 글 |
+|----|--------------|------|--------|
+| `"우테코-미션"` | `new-wooteco-mission` | `posts/wooteco-mission/` | 미션 설계 고민, 코드 리뷰, 리팩터링 |
+| `"우테코-스터디"` | `new-wooteco-study` | `posts/wooteco-study/` | 내부 스터디 자료, 기술 토론 정리 |
+| `"우테코-활동"` | `new-wooteco-activity` | `posts/wooteco-activity/` | 행사, 발표, 네트워킹, 코치 세션 |
+
+**기타**
+
+| 값 | Makefile 명령 | 폴더 | 어떤 글 |
+|----|--------------|------|--------|
 | `"트러블슈팅"` | `new-troubleshooting` | `posts/troubleshooting/` | 에러 해결 기록 |
-| `"회고"` | `new-retrospect` | `posts/retrospect/` | 주간/월간 회고, 일기 |
+| `"회고"` | `new-retrospect` | `posts/retrospect/` | 주간/월간 회고 |
 
 ---
 

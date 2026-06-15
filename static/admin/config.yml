@@ -5,17 +5,20 @@ backend:
 
 # 로컬 개발 시 아래 줄을 주석 해제하고, 별도 터미널에서
 # `npx @sveltia/cms-backend` 를 실행하면 로컬 파일시스템에 직접 쓸 수 있습니다.
-# 배포 전에는 반드시 다시 주석 처리하세요.
 # local_backend: true
 
-# CMS에서 업로드한 이미지 저장 위치
-# static/ 하위 파일은 Hugo가 그대로 public/으로 복사해 /uploads/... 로 서빙합니다.
 media_folder: "static/uploads"
 public_folder: "/uploads"
 
+# 카테고리 선택 옵션 (select 위젯에서 공통 사용)
+# 새 카테고리 추가 시 각 컬렉션의 options 목록에 추가하세요.
+
 collections:
 
-  # ── Java ─────────────────────────────────────────────────────────
+  # ════════════════════════════════════════════════════════════════
+  # 개념학습
+  # ════════════════════════════════════════════════════════════════
+
   - name: "java"
     label: "Java"
     label_singular: "Java 글"
@@ -24,18 +27,20 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/java/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["Java"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["Java"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── Spring ───────────────────────────────────────────────────────
   - name: "spring"
     label: "Spring"
     label_singular: "Spring 글"
@@ -44,18 +49,20 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/spring/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["Spring"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["Spring"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── Database ─────────────────────────────────────────────────────
   - name: "database"
     label: "Database"
     label_singular: "Database 글"
@@ -64,18 +71,42 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/database/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["Database"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["Database"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── Infra ─────────────────────────────────────────────────────────
+  - name: "network"
+    label: "Network"
+    label_singular: "Network 글"
+    folder: "content/posts/network"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/network/{{slug}}"
+    fields:
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["Network"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
+
   - name: "infra"
     label: "Infra"
     label_singular: "Infra 글"
@@ -84,58 +115,94 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/infra/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["Infra"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["Infra"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── 우아한테크코스 ────────────────────────────────────────────────
-  - name: "woowacourse"
-    label: "우아한테크코스"
-    label_singular: "우아한테크코스 글"
-    folder: "content/posts/woowacourse"
+  # ════════════════════════════════════════════════════════════════
+  # 우아한테크코스
+  # ════════════════════════════════════════════════════════════════
+
+  - name: "wooteco-mission"
+    label: "우테코 미션"
+    label_singular: "우테코 미션 글"
+    folder: "content/posts/wooteco-mission"
     create: true
     path: "{{slug}}/index"
-    preview_path: "posts/woowacourse/{{slug}}"
+    preview_path: "posts/wooteco-mission/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["우아한테크코스"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["우테코-미션"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── CS 기초 ──────────────────────────────────────────────────────
-  - name: "cs"
-    label: "CS 기초"
-    label_singular: "CS 기초 글"
-    folder: "content/posts/cs"
+  - name: "wooteco-study"
+    label: "우테코 스터디"
+    label_singular: "우테코 스터디 글"
+    folder: "content/posts/wooteco-study"
     create: true
     path: "{{slug}}/index"
-    preview_path: "posts/cs/{{slug}}"
+    preview_path: "posts/wooteco-study/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["CS"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["우테코-스터디"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── 트러블슈팅 ───────────────────────────────────────────────────
+  - name: "wooteco-activity"
+    label: "우테코 활동"
+    label_singular: "우테코 활동 글"
+    folder: "content/posts/wooteco-activity"
+    create: true
+    path: "{{slug}}/index"
+    preview_path: "posts/wooteco-activity/{{slug}}"
+    fields:
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
+          date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["우테코-활동"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "시리즈명",     name: "series",      widget: "list", required: false }
+      - { label: "시리즈 순서",  name: "series_order", widget: "number", required: false, value_type: "int" }
+      - { label: "본문",         name: "body",        widget: "markdown" }
+
+  # ════════════════════════════════════════════════════════════════
+  # 기타
+  # ════════════════════════════════════════════════════════════════
+
   - name: "troubleshooting"
     label: "트러블슈팅"
     label_singular: "트러블슈팅 글"
@@ -144,18 +211,18 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/troubleshooting/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["트러블슈팅"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["트러블슈팅"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "본문",         name: "body",        widget: "markdown" }
 
-  # ── 회고 ─────────────────────────────────────────────────────────
   - name: "retrospect"
     label: "회고"
     label_singular: "회고 글"
@@ -164,13 +231,14 @@ collections:
     path: "{{slug}}/index"
     preview_path: "posts/retrospect/{{slug}}"
     fields:
-      - { label: "제목",       name: "title",       widget: "string" }
-      - { label: "작성일",     name: "date",        widget: "datetime",
+      - { label: "제목 *",       name: "title",       widget: "string" }
+      - { label: "작성일",       name: "date",        widget: "datetime",
           date_format: "YYYY-MM-DD", time_format: false, format: "YYYY-MM-DD" }
-      - { label: "초안",       name: "draft",       widget: "boolean", default: true }
-      - { label: "카테고리",   name: "categories",  widget: "list",
-          default: ["회고"], required: false }
-      - { label: "태그",       name: "tags",        widget: "list", required: false }
-      - { label: "요약",       name: "description", widget: "string", required: false }
-      - { label: "커버 이미지", name: "image",       widget: "image", required: false }
-      - { label: "본문",       name: "body",        widget: "markdown" }
+      - { label: "초안 (true = 비공개)",  name: "draft", widget: "boolean", default: true }
+      - { label: "카테고리",     name: "categories",  widget: "select", multiple: true,
+          options: ["Java","Spring","Database","Network","Infra","우테코-미션","우테코-스터디","우테코-활동","트러블슈팅","회고"],
+          default: ["회고"] }
+      - { label: "태그",         name: "tags",        widget: "list", required: false }
+      - { label: "요약 (카드 한 줄 소개)", name: "description", widget: "text", required: false }
+      - { label: "커버 이미지 (1200×630px 권장)", name: "image", widget: "image", required: false }
+      - { label: "본문",         name: "body",        widget: "markdown" }

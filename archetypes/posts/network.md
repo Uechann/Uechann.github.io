@@ -2,11 +2,11 @@
 title: '{{ replace .File.ContentBaseName "-" " " | title }}'
 date: '{{ .Date }}'
 draft: true
-categories: ["우아한테크코스"]
+categories: ["Network"]
 tags: []
 description: ""
 image: ""
-# series: ["시리즈명"]   # 연속 글이면 시리즈명 입력 (예: ["우테코 6기 회고"])
+# series: ["시리즈명"]
 # series_order: 1
 ---
 
@@ -14,13 +14,13 @@ image: ""
 
 > 한 줄 요약: 이 글에서 무엇을 다루는지 적어주세요.
 
-## 미션 / 활동 내용
+## 배경 지식
 
-## 배운 점
+## 동작 원리
 
-## 어려웠던 점
+## 예시 / 실습
 
-## 앞으로의 방향
+## 정리
 
 ## 참고
 
