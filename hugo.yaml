@@ -65,9 +65,7 @@ params:
       - type: archives
         params:
           limit: 5
-      - type: categories
-        params:
-          limit: 10
+      - type: grouped-categories
       - type: tag-cloud
         params:
           limit: 10
