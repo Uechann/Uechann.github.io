@@ -192,6 +192,65 @@
     .form-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px}
     .form-grid label{display:flex;flex-direction:column;gap:5px;font-size:13px;font-weight:500;color:var(--muted)}
     .form-grid .form-input{margin-top:0}
+
+    /* ── EasyMDE preview — mirrors blog post-content ─── */
+    .editor-preview, .editor-preview-side {
+      background: var(--surface) !important;
+      color: var(--text) !important;
+      font-size: 15px;
+      line-height: 1.88;
+      padding: 20px 24px !important;
+    }
+    .editor-preview h1,.editor-preview h2,.editor-preview h3,
+    .editor-preview h4,.editor-preview h5,.editor-preview h6,
+    .editor-preview-side h1,.editor-preview-side h2,.editor-preview-side h3,
+    .editor-preview-side h4,.editor-preview-side h5,.editor-preview-side h6 {
+      font-weight: 700; line-height: 1.35; color: var(--text); margin-top: 1.8em;
+    }
+    .editor-preview h2,.editor-preview-side h2 {
+      font-size: 1.45rem; padding-bottom: .4em; border-bottom: 2px solid var(--accent); margin-bottom: .6em;
+    }
+    .editor-preview h3,.editor-preview-side h3 { font-size: 1.18rem; margin-bottom: .5em; }
+    .editor-preview h4,.editor-preview-side h4 { font-size: 1rem; color: var(--accent); margin-bottom: .4em; }
+    .editor-preview p,.editor-preview-side p { margin-bottom: 1.3em; }
+    .editor-preview a,.editor-preview-side a { color: var(--accent); text-decoration: underline; }
+    .editor-preview strong,.editor-preview-side strong { font-weight: 700; }
+    .editor-preview em,.editor-preview-side em { font-style: italic; }
+    .editor-preview pre,.editor-preview-side pre {
+      background: #0f172a; border-radius: 10px; padding: 1.1em 1.3em;
+      overflow-x: auto; margin: 1.2em 0; border: 1px solid rgba(255,255,255,.06);
+    }
+    .editor-preview pre code,.editor-preview-side pre code {
+      font-family: 'JetBrains Mono','Fira Code',monospace;
+      font-size: .84rem; line-height: 1.7; color: #e2e8f0; background: none; padding: 0;
+    }
+    .editor-preview code,.editor-preview-side code {
+      background: rgba(59,130,246,.08); color: var(--accent);
+      font-family: 'JetBrains Mono','Fira Code',monospace;
+      font-size: .85em; padding: .15em .4em; border-radius: 4px; border: 1px solid rgba(59,130,246,.18);
+    }
+    .editor-preview pre code,.editor-preview-side pre code {
+      background: none !important; color: #e2e8f0 !important; border: none !important; padding: 0 !important;
+    }
+    .editor-preview blockquote,.editor-preview-side blockquote {
+      border-left: 4px solid var(--accent); background: rgba(59,130,246,.06);
+      border-radius: 0 8px 8px 0; padding: .75em 1.1em; margin: 1.2em 0; color: var(--muted);
+    }
+    .editor-preview blockquote p,.editor-preview-side blockquote p { margin: 0; }
+    .editor-preview ul,.editor-preview ol,.editor-preview-side ul,.editor-preview-side ol {
+      padding-left: 1.6em; margin-bottom: 1.1em;
+    }
+    .editor-preview li,.editor-preview-side li { margin-bottom: .3em; line-height: 1.75; }
+    .editor-preview table,.editor-preview-side table {
+      width: 100%; border-collapse: collapse; font-size: .9rem; margin: 1.2em 0;
+    }
+    .editor-preview th,.editor-preview-side th {
+      background: var(--surface2); font-weight: 600; padding: .5em .9em;
+      border: 1px solid var(--border); text-align: left;
+    }
+    .editor-preview td,.editor-preview-side td { padding: .45em .9em; border: 1px solid var(--border); }
+    .editor-preview img,.editor-preview-side img { max-width: 100%; border-radius: 8px; }
+    .editor-preview hr,.editor-preview-side hr { border: none; border-top: 1px solid var(--border); margin: 2em 0; }
   </style>
 </head>
 <body>
@@ -235,6 +294,7 @@ const S = {
   profileSha:   null,
   showAddCat:   false,
   addCatParent: null,        // 부모 node key (null = 최상위)
+  githubUser:   null,        // { login, avatarUrl }
 };
 
 /* ══ GitHub API ═══════════════════════════════════════ */
@@ -526,11 +586,18 @@ async function loadProfile() {
   }
 }
 
+async function loadGithubUser() {
+  try {
+    const u = await gh('GET', '/user');
+    S.githubUser = { login: u.login, avatarUrl: u.avatar_url };
+  } catch(e) { /* ignore */ }
+}
+
 async function saveProfile() {
-  const name   = ($('#pf-name')?.value    || '').trim();
-  const role   = ($('#pf-role')?.value    || '').trim();
-  const bio    = ($('#pf-bio')?.value     || '').trim();
-  const avatar = ($('#pf-avatar')?.value  || '').trim();
+  const name   = ($('#pf-name')?.value      || '').trim();
+  const role   = ($('#pf-role')?.value      || '').trim();
+  const bio    = ($('#pf-bio')?.value       || '').trim();
+  const avatar = ($('#pf-avatar-url')?.value|| '').trim();
   const links  = $$('.pf-link-row').map(row => ({
     label: row.querySelector('.pf-link-label')?.value?.trim() || '',
     url:   row.querySelector('.pf-link-url')?.value?.trim()   || '',
@@ -570,8 +637,23 @@ function tProfile() {
       <textarea id="pf-bio" class="form-input" rows="3" placeholder="한두 줄 소개">${esc(p.bio||'')}</textarea>
     </div>
     <div class="form-group">
-      <label class="form-label">아바타 경로 (static 기준, 예: img/avatar.png)</label>
-      <input id="pf-avatar" class="form-input" value="${esc(p.avatar||'')}" placeholder="img/avatar.png" />
+      <label class="form-label">프로필 사진</label>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:8px">
+        <img id="pf-avatar-preview"
+          src="${esc(p.avatar || S.githubUser?.avatarUrl || '')}"
+          style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid var(--border);background:var(--bg);flex-shrink:0;${!(p.avatar || S.githubUser?.avatarUrl) ? 'display:none' : ''}"
+          onerror="this.style.display='none'" />
+        <div style="display:flex;flex-direction:column;gap:6px">
+          ${S.githubUser ? `<button class="btn btn-secondary btn-sm" data-act="use-github-avatar">GitHub 아바타 사용</button>` : ''}
+          <label class="btn btn-secondary btn-sm" style="cursor:pointer;margin:0">
+            이미지 업로드
+            <input type="file" id="pf-avatar-file" accept="image/*" style="display:none" />
+          </label>
+          <button class="btn btn-ghost btn-sm" data-act="clear-avatar" style="color:var(--danger)">제거</button>
+        </div>
+      </div>
+      <input type="hidden" id="pf-avatar-url" value="${esc(p.avatar||'')}" />
+      <div style="font-size:12px;color:var(--muted);margin-top:4px">현재: <span id="pf-avatar-path">${esc(p.avatar || (S.githubUser ? 'GitHub 아바타 미설정' : '없음'))}</span></div>
     </div>
     <div class="form-group">
       <label class="form-label" style="margin-bottom:10px">링크 <small style="color:var(--muted)">(label / URL / 아이콘: github, mail, linkedin, twitter, instagram, link)</small></label>
@@ -601,140 +683,6 @@ async function uploadImage(file) {
     reader.onerror = reject;
     reader.readAsDataURL(file);
   });
-}
-
-/* ── Category Manage View ─────────────────────────────── */
-function tCatsManage() {
-  const rows = GROUPS.map(g => {
-    const items = CATS.filter(c => c.group === g).map(c => {
-      const cnt   = S.counts[c.key] ?? '?';
-      const hasPosts = (S.counts[c.key] ?? 1) > 0;
-      const delBtn = hasPosts
-        ? `<button class="btn btn-sm btn-ghost" disabled title="글이 있어 삭제할 수 없습니다">삭제</button>`
-        : `<button class="btn btn-sm btn-danger" data-act="del-cat" data-cat="${c.key}">삭제</button>`;
-      return `
-      <tr>
-        <td><span style="font-size:1.2em">${c.icon}</span></td>
-        <td><strong>${esc(c.label)}</strong> <small style="opacity:.55">${esc(c.key)}</small></td>
-        <td>${esc(g)}</td>
-        <td><span class="badge">${cnt}</span></td>
-        <td style="text-align:right">${delBtn}</td>
-      </tr>`;
-    }).join('');
-    return items;
-  }).join('');
-
-  const groupOpts = GROUPS.map(g => `<option value="${esc(g)}">${esc(g)}</option>`).join('');
-
-  const addForm = S.showAddCat ? `
-  <div class="card" style="margin-top:20px;padding:20px">
-    <h3 style="margin:0 0 16px">새 카테고리 추가</h3>
-    <div class="form-grid">
-      <label>키 (영문, 하이픈만)
-        <input id="nc-key"   type="text" placeholder="예: my-category" class="form-input" />
-      </label>
-      <label>이름
-        <input id="nc-label" type="text" placeholder="예: 내 카테고리" class="form-input" />
-      </label>
-      <label>그룹
-        <select id="nc-group" class="form-input">${groupOpts}</select>
-      </label>
-      <label>아이콘 (이모지)
-        <input id="nc-icon"  type="text" placeholder="예: 🗂️" class="form-input" maxlength="4" />
-      </label>
-      <label>색상
-        <input id="nc-color" type="color" value="#6366f1" class="form-input" style="height:38px;padding:2px 4px" />
-      </label>
-    </div>
-    <div style="margin-top:16px;display:flex;gap:8px">
-      <button class="btn btn-primary" data-act="save-add-cat">저장</button>
-      <button class="btn btn-ghost"   data-act="hide-add-cat">취소</button>
-    </div>
-  </div>` : `
-  <div style="margin-top:20px">
-    <button class="btn btn-primary" data-act="show-add-cat">+ 카테고리 추가</button>
-  </div>`;
-
-  return `
-  <h2 style="margin:0 0 20px">카테고리 관리</h2>
-  <div class="card" style="overflow:auto">
-    <table class="mgmt-table">
-      <thead>
-        <tr>
-          <th></th><th>카테고리</th><th>그룹</th><th>글 수</th><th></th>
-        </tr>
-      </thead>
-      <tbody>${rows || '<tr><td colspan="5" style="text-align:center;padding:24px;opacity:.5">카테고리가 없습니다</td></tr>'}</tbody>
-    </table>
-  </div>
-  ${addForm}`;
-}
-
-async function addCat() {
-  const key   = ($('#nc-key')?.value  || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
-  const label = ($('#nc-label')?.value|| '').trim();
-  const group = ($('#nc-group')?.value|| '').trim();
-  const icon  = ($('#nc-icon')?.value || '').trim() || '📁';
-  const color = $('#nc-color'  )?.value || '#6366f1';
-
-  if (!key)   { toast('키를 입력해주세요','error'); return; }
-  if (!label) { toast('이름을 입력해주세요','error'); return; }
-  if (CAT[key]) { toast('이미 존재하는 키입니다','error'); return; }
-
-  try {
-    const indexMd = `---\ntitle: ${label}\n---\n`;
-    await saveFile(`content/posts/${key}/_index.md`, indexMd, null, `config: 카테고리 ${label} 추가`);
-
-    const cat = { key, label, icon, color, group };
-    CATS.push(cat);
-    CAT[key] = cat;
-    if (!GROUPS.includes(group)) {
-      GROUPS.push(group);
-      if (S.catGroupDefs) S.catGroupDefs.push({ key:group, icon:'🗂️' });
-    }
-    S.catOpen[key]  = false;
-    S.catPosts[key] = null;
-    S.counts[key]   = 0;
-    if (S.groupOpen[group] === undefined) S.groupOpen[group] = true;
-
-    await saveCatsConfig();
-
-    S.showAddCat = false;
-    const treeEl = document.getElementById('sidebar-tree');
-    if (treeEl) treeEl.innerHTML = renderTree();
-    updateMainContent();
-    toast(`카테고리 "${label}"를 추가했습니다`, 'success');
-  } catch(err) { toast('추가 실패: '+err.message, 'error'); }
-}
-
-async function delCat(catKey) {
-  const cat = CAT[catKey];
-  if (!cat) return;
-  const cnt = S.counts[catKey] ?? 1;
-  if (cnt > 0) { toast('글이 있는 카테고리는 삭제할 수 없습니다','error'); return; }
-  if (!confirm(`"${cat.label}" 카테고리를 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
-
-  try {
-    const path = `content/posts/${catKey}/_index.md`;
-    try {
-      const { sha } = await getFile(path);
-      await delFile(path, sha, `config: 카테고리 ${cat.label} 삭제`);
-    } catch(e) { /* _index.md가 없으면 그냥 진행 */ }
-
-    const idx = CATS.findIndex(c => c.key === catKey);
-    if (idx >= 0) CATS.splice(idx, 1);
-    delete CAT[catKey];
-    delete S.catOpen[catKey];
-    delete S.catPosts[catKey];
-    delete S.counts[catKey];
-
-    await saveCatsConfig();
-
-    const treeEl = document.getElementById('sidebar-tree');
-    if (treeEl) treeEl.innerHTML = renderTree();
-    updateMainContent();
-    toast(`카테고리 "${cat.label}"를 삭제했습니다`, 'success');
-  } catch(err) { toast('삭제 실패: '+err.message, 'error'); }
 }
 
 /* ══ Front Matter ═════════════════════════════════════ */
@@ -822,8 +770,9 @@ function updateMainContent() {
   destroyMde();
   tb.innerHTML = renderTopbar();
   mc.innerHTML = renderMainView();
-  if (S.view === 'editor') initEditor();
-  if (S.view === 'about')  initAbout();
+  if (S.view === 'editor')  initEditor();
+  if (S.view === 'about')   initAbout();
+  if (S.view === 'profile') initProfile();
 }
 
 /* ── Login ───────────────────────────────────────────── */
@@ -1147,6 +1096,26 @@ function initEditor() {
 
 function initAbout() { makeMde('ab-body', '280px'); }
 
+function initProfile() {
+  const fileIn = document.getElementById('pf-avatar-file');
+  if (!fileIn) return;
+  fileIn.addEventListener('change', async () => {
+    const file = fileIn.files[0];
+    if (!file) return;
+    toast('아바타 업로드 중…', 'info');
+    try {
+      const url = await uploadImage(file);
+      const hidden  = document.getElementById('pf-avatar-url');
+      const preview = document.getElementById('pf-avatar-preview');
+      const path    = document.getElementById('pf-avatar-path');
+      if (hidden)  hidden.value = url;
+      if (preview) { preview.src = url; preview.style.display = ''; }
+      if (path)    path.textContent = url;
+      toast('업로드 완료', 'success');
+    } catch(err) { toast('업로드 실패: ' + err.message, 'error'); }
+  });
+}
+
 function addTag(tag) {
   const wrap=$('#tags-wrap'), inp=$('#tag-in');
   if (!tag||!wrap||$$('.tag-chip',wrap).some(c=>c.dataset.tag===tag)) return;
@@ -1208,7 +1177,8 @@ function doLogin() {
   const v = ($('#pat-in')?.value||'').trim();
   if (!v) { toast('토큰을 입력해주세요','error'); return; }
   S.pat=v; sessionStorage.setItem('admin_pat',v);
-  S.view='welcome'; render(); loadCounts(); loadCatsConfig(); loadProfile();
+  S.view='welcome'; render();
+  loadGithubUser().then(() => { loadCounts(); loadCatsConfig(); loadProfile(); });
 }
 
 function logout() {
@@ -1398,6 +1368,25 @@ document.addEventListener('click', ev => {
     case 'del-link':
       el.closest('.pf-link-row')?.remove();
       break;
+    case 'use-github-avatar': {
+      const url = S.githubUser?.avatarUrl || '';
+      const hidden = document.getElementById('pf-avatar-url');
+      const preview = document.getElementById('pf-avatar-preview');
+      const path = document.getElementById('pf-avatar-path');
+      if (hidden) hidden.value = url;
+      if (preview) { preview.src = url; preview.style.display = ''; }
+      if (path) path.textContent = url;
+      break;
+    }
+    case 'clear-avatar': {
+      const hidden = document.getElementById('pf-avatar-url');
+      const preview = document.getElementById('pf-avatar-preview');
+      const path = document.getElementById('pf-avatar-path');
+      if (hidden) hidden.value = '';
+      if (preview) { preview.src = ''; preview.style.display = 'none'; }
+      if (path) path.textContent = '없음';
+      break;
+    }
     // Auth
     case 'logout':        logout(); break;
   }
@@ -1429,7 +1418,7 @@ document.addEventListener('keydown', ev => {
 
 /* ══ Init ══════════════════════════════════════════════ */
 render();
-if (S.pat) { loadCounts(); loadCatsConfig(); loadProfile(); }
+if (S.pat) { loadGithubUser().then(() => { loadCounts(); loadCatsConfig(); loadProfile(); }); }
 </script>
 </body>
 </html>
