@@ -1,81 +1,212 @@
-// ── 폰트 ──────────────────────────────────────────────────────────
+// ── 폰트 설정 ────────────────────────────────────────────────────
 // Pretendard, JetBrains Mono는 _partials/head/custom-font.html 에서 로드
 
 :root {
-    --sys-font-family: 'Pretendard', -apple-system, BlinkMacSystemFont,
-                       'Apple SD Gothic Neo', 'Noto Sans KR', system-ui, sans-serif;
+    --sys-font-family: 'Pretendard Variable', 'Pretendard', -apple-system,
+                       BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Noto Sans KR',
+                       system-ui, sans-serif;
     --base-font-family: var(--sys-font-family);
     --code-font-family: 'JetBrains Mono', 'Fira Code', 'D2Coding', Consolas, monospace;
 }
 
-// ── 한국어 타이포그래피 ────────────────────────────────────────────
+// ── 한국어 기본 ───────────────────────────────────────────────────
 body {
-    word-break: keep-all;       // 한국어 단어 단위 줄바꿈
+    word-break: keep-all;
     overflow-wrap: break-word;
 }
 
-// 본문 읽기 편하게
-.article-content {
-    font-size: 1.05rem;
-    line-height: 1.85;
-
-    p {
-        margin-bottom: 1.2em;
-    }
-
-    // 헤딩 한국어 줄바꿈
-    h1, h2, h3, h4 {
-        word-break: keep-all;
-        font-weight: 700;
-        letter-spacing: -0.02em;
-    }
+// ── 액센트 컬러 ───────────────────────────────────────────────────
+:root {
+    --accent-color:        #3b82f6;
+    --accent-color-darker: #2563eb;
+    --accent-color-text:   #fff;
+    --card-border-radius:  12px;
 }
 
-// ── 코드 블록 ─────────────────────────────────────────────────────
+[data-scheme="dark"] {
+    --accent-color:        #60a5fa;
+    --accent-color-darker: #3b82f6;
+    --accent-color-text:   #000;
+}
+
+// ════════════════════════════════════════════════════════════════
+// 글 본문 타이포그래피
+// ════════════════════════════════════════════════════════════════
+
 .article-content {
+    // ── R1: 기본 ─────────────────────────────────────────────────
+    font-size:      1rem;          // 16px 기준 (velog, tistory 표준)
+    line-height:    1.8;
+    letter-spacing: -0.003em;     // 한국어 가독성
+    word-spacing:   0.04em;
+
+    p {
+        margin-bottom: 1.4em;
+    }
+
+    // ── R2: 제목 계층 ─────────────────────────────────────────────
+    h1, h2, h3, h4 {
+        word-break:  keep-all;
+        font-weight: 700;
+        line-height: 1.35;
+    }
+
+    h2 {
+        font-size:     1.55rem;
+        margin-top:    2.5em;
+        margin-bottom: 0.75em;
+        padding-bottom: 0.45em;
+        border-bottom:  2px solid var(--accent-color);
+        letter-spacing: -0.02em;
+    }
+
+    h3 {
+        font-size:     1.2rem;
+        margin-top:    2em;
+        margin-bottom: 0.55em;
+        letter-spacing: -0.01em;
+    }
+
+    h4 {
+        font-size:     1.05rem;
+        margin-top:    1.6em;
+        margin-bottom: 0.4em;
+        color:         var(--accent-color);
+    }
+
+    // ── R3: 코드 ─────────────────────────────────────────────────
+    // 코드 블록
     pre {
-        border-radius: 8px;
-        font-size: 0.88rem;
-        line-height: 1.6;
+        border-radius: 10px;
+        padding:       1.2em 1.5em;
+        font-size:     0.875rem;
+        line-height:   1.65;
+        overflow-x:    auto;
     }
 
     // 인라인 코드
-    p code,
-    li code,
-    td code {
-        font-size: 0.87em;
-        padding: 0.15em 0.45em;
+    p code, li code, td code, h2 code, h3 code, h4 code {
+        background:    rgba(59, 130, 246, 0.08);
+        color:         var(--accent-color);
         border-radius: 4px;
+        padding:       0.15em 0.45em;
+        font-size:     0.875em;
+        font-family:   var(--code-font-family);
         font-variant-ligatures: normal;
+    }
+
+    [data-scheme="dark"] & p code,
+    [data-scheme="dark"] & li code,
+    [data-scheme="dark"] & td code {
+        background: rgba(96, 165, 250, 0.12);
+    }
+
+    // ── R4: 인용구 ────────────────────────────────────────────────
+    blockquote {
+        border-left:   4px solid var(--accent-color);
+        margin:        1.5em 0;
+        padding:       0.85em 1.25em;
+        background:    rgba(59, 130, 246, 0.05);
+        border-radius: 0 8px 8px 0;
+        font-style:    normal;   // 한국어에 이탤릭 부적합
+
+        p {
+            margin: 0;
+            color: var(--body-text-color);
+            opacity: 0.9;
+        }
+    }
+
+    [data-scheme="dark"] & blockquote {
+        background: rgba(96, 165, 250, 0.07);
+    }
+
+    // ── R5: 목록 ─────────────────────────────────────────────────
+    ul, ol {
+        padding-left:  1.5em;
+        margin:        0.6em 0 1.2em;
+    }
+
+    li {
+        margin-bottom: 0.35em;
+        line-height:   1.75;
+    }
+
+    li > ul,
+    li > ol {
+        margin: 0.3em 0 0.3em;
+    }
+
+    // ── R6: 구분선 ───────────────────────────────────────────────
+    hr {
+        border:      none;
+        border-top:  1px solid var(--body-text-color-faded);
+        margin:      2.5em 0;
+        opacity:     0.35;
+    }
+
+    // ── R6: 링크 ─────────────────────────────────────────────────
+    a:not(.btn) {
+        color:                  var(--accent-color);
+        text-decoration:        underline;
+        text-decoration-color:  rgba(59, 130, 246, 0.35);
+        text-underline-offset:  3px;
+        transition:             text-decoration-color 0.15s;
+
+        &:hover {
+            text-decoration-color: var(--accent-color);
+        }
+    }
+
+    // ── R6: 테이블 ───────────────────────────────────────────────
+    table {
+        width:           100%;
+        border-collapse: collapse;
+        font-size:       0.9rem;
+        margin:          1.5em 0;
+        display:         block;
+        overflow-x:      auto;
+    }
+
+    th {
+        background:  rgba(59, 130, 246, 0.07);
+        font-weight: 600;
+        padding:     0.6em 1em;
+        border:      1px solid var(--body-text-color-faded);
+        text-align:  left;
+    }
+
+    td {
+        padding: 0.5em 1em;
+        border:  1px solid var(--body-text-color-faded);
+    }
+
+    tr:nth-child(even) td {
+        background: rgba(0, 0, 0, 0.02);
+    }
+
+    [data-scheme="dark"] & tr:nth-child(even) td {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    // ── 이미지 ───────────────────────────────────────────────────
+    img {
+        border-radius: 8px;
+        max-width:     100%;
     }
 }
 
-// ── 액센트 컬러 (라이트) ──────────────────────────────────────────
-:root {
-    --accent-color: #3b82f6;            // blue-500
-    --accent-color-darker: #2563eb;     // blue-600
-    --accent-color-text: #fff;
-}
+// ════════════════════════════════════════════════════════════════
+// R7: 글 카드 목록
+// ════════════════════════════════════════════════════════════════
 
-// 다크 모드
-[data-scheme="dark"] {
-    --accent-color: #60a5fa;            // blue-400
-    --accent-color-darker: #3b82f6;
-    --accent-color-text: #000;
-}
-
-// ── 카드 ──────────────────────────────────────────────────────────
-:root {
-    --card-border-radius: 12px;
-}
-
-// 카드 hover 살짝 올라오는 효과
+// 카드 hover 효과
 .article-list--tile article,
 .article-list article {
     transition: transform 0.15s ease, box-shadow 0.15s ease;
 
     &:hover {
-        transform: translateY(-2px);
+        transform:  translateY(-2px);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
     }
 }
@@ -87,13 +218,20 @@ body {
     }
 }
 
-// ── 링크 ──────────────────────────────────────────────────────────
-.article-content a:not(.btn) {
-    text-underline-offset: 3px;
+// 카드 제목
+.article-title {
+    font-size:      1.1rem;
+    line-height:    1.4;
+    letter-spacing: -0.01em;
+    font-weight:    700;
+}
 
-    &:hover {
-        text-decoration: underline;
-    }
+// 카드 요약
+.article-subtitle,
+.article-details .article-description {
+    font-size:   0.9rem;
+    line-height: 1.65;
+    opacity:     0.75;
 }
 
 // ── 사이드바 ──────────────────────────────────────────────────────
@@ -102,15 +240,18 @@ body {
 }
 
 .site-description {
-    font-size: 0.88rem;
-    opacity: 0.8;
+    font-size:   0.88rem;
+    opacity:     0.8;
     line-height: 1.5;
-    word-break: keep-all;
+    word-break:  keep-all;
 }
 
 // ── 모바일 ────────────────────────────────────────────────────────
 @media (max-width: 768px) {
     .article-content {
         font-size: 1rem;
+
+        h2 { font-size: 1.35rem; }
+        h3 { font-size: 1.15rem; }
     }
 }
