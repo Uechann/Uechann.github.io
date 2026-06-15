@@ -4,7 +4,9 @@
 
 <div class="sb-profile">
   {{- if $profile.avatar -}}
-  <img class="sb-avatar" src="/{{ $profile.avatar }}" alt="{{ $profile.name }}" />
+  <img class="sb-avatar"
+    src="{{ if strings.HasPrefix $profile.avatar "http" }}{{ $profile.avatar }}{{ else }}/{{ $profile.avatar }}{{ end }}"
+    alt="{{ $profile.name }}" />
   {{- else -}}
   <div class="sb-avatar-placeholder">{{ substr $profile.name 0 1 }}</div>
   {{- end -}}
