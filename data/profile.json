@@ -4,7 +4,15 @@
   "bio": "우아한테크코스에서 Java & Spring을 공부하며 배운 것들을 기록합니다.",
   "avatar": "",
   "links": [
-    { "label": "GitHub", "url": "https://github.com/Uechann",       "icon": "github" },
-    { "label": "Email",  "url": "mailto:cab0703607@gmail.com",       "icon": "mail"   }
+    {
+      "label": "GitHub",
+      "url": "https://github.com/Uechann",
+      "icon": "github"
+    },
+    {
+      "label": "Email",
+      "url": "mailto:cab0703607@gmail.com",
+      "icon": "mail"
+    }
   ]
 }
