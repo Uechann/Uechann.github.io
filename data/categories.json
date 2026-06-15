@@ -1,0 +1,35 @@
+{
+  "tree": [
+    {
+      "key": "concepts",
+      "label": "개념학습",
+      "icon": "📚",
+      "children": [
+        { "key": "java",     "label": "Java",     "icon": "☕", "color": "#f59e0b", "contentPath": "posts/java",     "children": [] },
+        { "key": "spring",   "label": "Spring",   "icon": "🌱", "color": "#10b981", "contentPath": "posts/spring",   "children": [] },
+        { "key": "database", "label": "Database", "icon": "🗄️", "color": "#6366f1", "contentPath": "posts/database", "children": [] },
+        { "key": "network",  "label": "Network",  "icon": "🌐", "color": "#06b6d4", "contentPath": "posts/network",  "children": [] },
+        { "key": "infra",    "label": "Infra",    "icon": "⚙️", "color": "#8b5cf6", "contentPath": "posts/infra",    "children": [] }
+      ]
+    },
+    {
+      "key": "wooteco",
+      "label": "우아한테크코스",
+      "icon": "🏫",
+      "children": [
+        { "key": "wooteco-mission",  "label": "미션",  "icon": "🎯", "color": "#ec4899", "contentPath": "posts/wooteco-mission",  "children": [] },
+        { "key": "wooteco-study",    "label": "스터디", "icon": "📚", "color": "#f97316", "contentPath": "posts/wooteco-study",    "children": [] },
+        { "key": "wooteco-activity", "label": "활동",  "icon": "🎉", "color": "#14b8a6", "contentPath": "posts/wooteco-activity", "children": [] }
+      ]
+    },
+    {
+      "key": "others",
+      "label": "기타",
+      "icon": "🗂️",
+      "children": [
+        { "key": "troubleshooting", "label": "트러블슈팅", "icon": "🔧", "color": "#ef4444", "contentPath": "posts/troubleshooting", "children": [] },
+        { "key": "retrospect",      "label": "회고",       "icon": "💭", "color": "#84cc16", "contentPath": "posts/retrospect",      "children": [] }
+      ]
+    }
+  ]
+}

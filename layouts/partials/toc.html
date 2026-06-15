@@ -1,0 +1,15 @@
+{{- if .TableOfContents | ne "" -}}
+<div class="toc-wrap">
+  <div class="toc-title">목차</div>
+  <nav aria-label="목차">
+    {{- /* Hugo generates TOC as ul list — we remap to custom classes */ -}}
+    {{- $toc := .TableOfContents -}}
+    {{- $toc = $toc | replaceRE `<nav id="TableOfContents">` "" -}}
+    {{- $toc = $toc | replaceRE `</nav>` "" -}}
+    {{- $toc = $toc | replaceRE `<ul>` `<ul class="toc-list">` -}}
+    {{- $toc = $toc | replaceRE `<li>` `<li class="toc-item">` -}}
+    {{- $toc = $toc | replaceRE `<a href="#` `<a class="toc-link" href="#` -}}
+    {{- $toc | safeHTML -}}
+  </nav>
+</div>
+{{- end -}}

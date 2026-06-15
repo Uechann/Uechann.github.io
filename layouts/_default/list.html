@@ -1,0 +1,52 @@
+{{ define "main" }}
+{{- $cats := index hugo.Data "categories" -}}
+
+{{- /* Find category icon/color */ -}}
+{{- $icon  := "📝" -}}
+{{- $color := "#3b82f6" -}}
+{{- range $cats.tree -}}
+  {{- range .children -}}
+    {{- $cp := .contentPath | default (printf "posts/%s" .key) -}}
+    {{- if hasSuffix $.RelPermalink (printf "/%s/" $cp) -}}
+      {{- $icon  = .icon -}}
+      {{- $color = .color | default "#3b82f6" -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<div class="list-header">
+  <h1 class="list-title">{{ $icon }} {{ .Title }}</h1>
+  {{- with .Description -}}<p class="list-desc">{{ . }}</p>{{- end -}}
+  <p class="list-count">글 {{ .Paginator.TotalNumberOfElements }}개</p>
+</div>
+
+<div class="post-list">
+  {{- range .Paginator.Pages -}}
+    {{ partial "post-card.html" . }}
+  {{- end -}}
+</div>
+
+{{- if gt .Paginator.TotalPages 1 -}}
+<nav class="pagination" aria-label="페이지 이동">
+  {{- if .Paginator.HasPrev -}}
+  <a href="{{ .Paginator.Prev.URL }}">«</a>
+  {{- else -}}
+  <span class="disabled">«</span>
+  {{- end -}}
+
+  {{- range .Paginator.Pagers -}}
+  {{- if eq . $.Paginator -}}
+  <span class="active">{{ .PageNumber }}</span>
+  {{- else -}}
+  <a href="{{ .URL }}">{{ .PageNumber }}</a>
+  {{- end -}}
+  {{- end -}}
+
+  {{- if .Paginator.HasNext -}}
+  <a href="{{ .Paginator.Next.URL }}">»</a>
+  {{- else -}}
+  <span class="disabled">»</span>
+  {{- end -}}
+</nav>
+{{- end -}}
+{{ end }}

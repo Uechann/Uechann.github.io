@@ -204,21 +204,21 @@ const REPO   = 'Uechann/Uechann.github.io';
 const BRANCH = 'main';
 const GH_API = 'https://api.github.com';
 
-let CATS = [
-  { key:'java',             label:'Java',         icon:'☕', group:'개념학습',       color:'#f59e0b' },
-  { key:'spring',           label:'Spring',        icon:'🌱', group:'개념학습',       color:'#10b981' },
-  { key:'database',         label:'Database',      icon:'🗄️', group:'개념학습',       color:'#6366f1' },
-  { key:'network',          label:'Network',       icon:'🌐', group:'개념학습',       color:'#06b6d4' },
-  { key:'infra',            label:'Infra',         icon:'⚙️', group:'개념학습',       color:'#8b5cf6' },
-  { key:'wooteco-mission',  label:'우테코 미션',   icon:'🎯', group:'우아한테크코스', color:'#ec4899' },
-  { key:'wooteco-study',    label:'우테코 스터디', icon:'📚', group:'우아한테크코스', color:'#f97316' },
-  { key:'wooteco-activity', label:'우테코 활동',   icon:'🎉', group:'우아한테크코스', color:'#14b8a6' },
-  { key:'troubleshooting',  label:'트러블슈팅',    icon:'🔧', group:'기타',           color:'#ef4444' },
-  { key:'retrospect',       label:'회고',           icon:'💭', group:'기타',           color:'#84cc16' },
-];
-let CAT = Object.fromEntries(CATS.map(c => [c.key, c]));
-let GROUPS = [...new Set(CATS.map(c => c.group))];
-let GROUP_ICONS = { '개념학습':'📚', '우아한테크코스':'🏫', '기타':'🗂️' };
+// 카테고리는 런타임에 data/categories.json에서 로드 (flattenTree로 leaf 추출)
+let CATS = [];
+let CAT  = {};
+
+function flattenTree(nodes, result = []) {
+  for (const n of nodes) {
+    if (n.children && n.children.length > 0) {
+      flattenTree(n.children, result);
+    } else {
+      result.push({ key: n.key, label: n.label, icon: n.icon || '📁', color: n.color || '#6366f1',
+                    contentPath: n.contentPath || `posts/${n.key}` });
+    }
+  }
+  return result;
+}
 
 /* ══ State ════════════════════════════════════════════ */
 const S = {
@@ -227,15 +227,15 @@ const S = {
   edit:         null,
   mde:          null,
   counts:       {},
-  groupOpen:    {},
   catOpen:      {},
   catPosts:     {},
   catConfigSha: null,
-  catGroupDefs: null,
+  catTree:      [],          // Composite 트리 (data/categories.json)
+  profile:      null,        // data/profile.json 내용
+  profileSha:   null,
   showAddCat:   false,
+  addCatParent: null,        // 부모 node key (null = 최상위)
 };
-GROUPS.forEach(g => { S.groupOpen[g] = true; });
-CATS.forEach(c => { S.catOpen[c.key] = false; S.catPosts[c.key] = null; });
 
 /* ══ GitHub API ═══════════════════════════════════════ */
 async function gh(method, path, body) {
@@ -260,8 +260,8 @@ async function getFile(path) {
   const d = await ghGet(`/repos/${REPO}/contents/${path}`);
   return { content: dec(d.content), sha: d.sha };
 }
-async function saveFile(path, content, sha, msg) {
-  const b = { message:msg, content:enc(content), branch:BRANCH };
+async function saveFile(path, content, sha, msg, rawBase64 = false) {
+  const b = { message:msg, content: rawBase64 ? content : enc(content), branch:BRANCH };
   if (sha) b.sha = sha;
   return ghPut(`/repos/${REPO}/contents/${path}`, b);
 }
@@ -278,41 +278,329 @@ async function lsDir(path) {
   }
 }
 
-/* ══ Category Config ══════════════════════════════════ */
+/* ══ Category Config (Composite Tree) ════════════════ */
 async function loadCatsConfig() {
   try {
-    const { content, sha } = await getFile('data/admin-cats.json');
+    const { content, sha } = await getFile('data/categories.json');
     const config = JSON.parse(content);
-    CATS.splice(0, CATS.length, ...config.cats);
+    S.catTree      = config.tree || [];
+    S.catConfigSha = sha;
+    // Flatten tree to get leaf categories → CATS / CAT
+    const leaves = flattenTree(S.catTree);
+    CATS.splice(0, CATS.length, ...leaves);
     Object.keys(CAT).forEach(k => delete CAT[k]);
-    CATS.forEach(c => { CAT[c.key] = c; });
-    GROUPS.splice(0, GROUPS.length, ...config.groups.map(g => g.key));
-    Object.keys(GROUP_ICONS).forEach(k => delete GROUP_ICONS[k]);
-    config.groups.forEach(g => { GROUP_ICONS[g.key] = g.icon; });
     CATS.forEach(c => {
-      if (S.groupOpen[c.group] === undefined) S.groupOpen[c.group] = true;
+      CAT[c.key] = c;
       if (S.catOpen[c.key]  === undefined) S.catOpen[c.key]  = false;
       if (S.catPosts[c.key] === undefined) S.catPosts[c.key] = null;
     });
-    S.catConfigSha  = sha;
-    S.catGroupDefs  = config.groups;
     const treeEl = document.getElementById('sidebar-tree');
     if (treeEl) treeEl.innerHTML = renderTree();
-  } catch(err) { /* keep hardcoded defaults on error */ }
+  } catch(err) { /* ignore — tree stays empty */ }
 }
 
 async function saveCatsConfig() {
-  const config = {
-    groups: S.catGroupDefs || GROUPS.map(g => ({ key:g, icon:GROUP_ICONS[g] })),
-    cats:   CATS.map(c => ({ key:c.key, label:c.label, icon:c.icon, color:c.color, group:c.group })),
-  };
   const res = await saveFile(
-    'data/admin-cats.json',
-    JSON.stringify(config, null, 2) + '\n',
+    'data/categories.json',
+    JSON.stringify({ tree: S.catTree }, null, 2) + '\n',
     S.catConfigSha,
-    'config: 카테고리 설정 업데이트',
+    'config: 카테고리 트리 업데이트',
   );
   S.catConfigSha = res?.content?.sha ?? null;
+}
+
+/* ── Find node & parent in tree ───────────────────── */
+function findNode(tree, key, parent = null) {
+  for (const n of tree) {
+    if (n.key === key) return { node: n, parent, siblings: tree };
+    if (n.children?.length) {
+      const r = findNode(n.children, key, n);
+      if (r) return r;
+    }
+  }
+  return null;
+}
+
+/* ── Category Manage View (Composite) ────────────── */
+function renderCatManageNode(node, depth = 0) {
+  const indent = depth * 20;
+  if (node.children && node.children.length > 0) {
+    // Group node
+    const children = node.children.map(c => renderCatManageNode(c, depth + 1)).join('');
+    return `
+    <div class="mgmt-node" style="padding-left:${indent + 12}px;display:flex;align-items:center;gap:8px;padding-top:8px;padding-bottom:8px;border-bottom:1px solid var(--border)">
+      <span style="font-size:1.15em;flex-shrink:0">${node.icon || '📁'}</span>
+      <strong style="flex:1">${esc(node.label)}</strong>
+      <small style="color:var(--muted)">${esc(node.key)}</small>
+      <button class="btn btn-sm btn-ghost" data-act="rename-node" data-node-key="${node.key}" data-node-label="${esc(node.label)}">이름변경</button>
+      <button class="btn btn-sm btn-primary" data-act="show-add-cat" data-parent-key="${node.key}">+ 하위 추가</button>
+      <button class="btn btn-sm btn-danger" data-act="del-node" data-node-key="${node.key}">삭제</button>
+    </div>
+    ${children}`;
+  } else {
+    // Leaf: real category
+    const cnt = S.counts[node.key] ?? '?';
+    const hasPosts = (S.counts[node.key] ?? 1) > 0;
+    return `
+    <div class="mgmt-node" style="padding-left:${indent + 24}px;display:flex;align-items:center;gap:8px;padding-top:7px;padding-bottom:7px;border-bottom:1px solid var(--border)">
+      <span style="font-size:1em;color:${node.color || '#6366f1'}">${node.icon || '📁'}</span>
+      <span style="flex:1">${esc(node.label)}</span>
+      <small style="color:var(--muted)">${esc(node.key)}</small>
+      <span class="badge">${cnt}</span>
+      <button class="btn btn-sm btn-ghost" data-act="rename-node" data-node-key="${node.key}" data-node-label="${esc(node.label)}">이름변경</button>
+      ${hasPosts
+        ? `<button class="btn btn-sm btn-ghost" disabled title="글이 있어 삭제 불가">삭제</button>`
+        : `<button class="btn btn-sm btn-danger" data-act="del-cat" data-cat="${node.key}">삭제</button>`}
+    </div>`;
+  }
+}
+
+function tCatsManage() {
+  const treeHtml = S.catTree.map(n => renderCatManageNode(n)).join('');
+
+  const parentKey = S.addCatParent;
+  const addForm = S.showAddCat ? `
+  <div class="card" style="margin-top:20px;padding:20px">
+    <h3 style="margin:0 0 4px">${parentKey ? '하위 폴더/카테고리 추가' : '최상위 폴더 추가'}</h3>
+    ${parentKey ? `<p style="margin:0 0 14px;font-size:12.5px;color:var(--muted)">상위: ${esc(findNode(S.catTree, parentKey)?.node?.label || parentKey)}</p>` : '<div style="height:14px"></div>'}
+    <div class="form-grid">
+      <label>키 (영문·하이픈, 불변)
+        <input id="nc-key"   type="text" placeholder="my-category" class="form-input" />
+      </label>
+      <label>이름
+        <input id="nc-label" type="text" placeholder="내 카테고리" class="form-input" />
+      </label>
+      <label>아이콘 (이모지)
+        <input id="nc-icon"  type="text" placeholder="📁" class="form-input" maxlength="4" />
+      </label>
+      <label>색상 (leaf만)
+        <input id="nc-color" type="color" value="#6366f1" class="form-input" style="height:38px;padding:2px 4px" />
+      </label>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;margin-top:12px;font-size:13px">
+      <input type="checkbox" id="nc-is-group" />
+      하위 폴더를 포함하는 그룹 노드로 생성
+    </label>
+    <p style="font-size:12px;color:var(--muted);margin-top:4px">✓ 체크 시 그룹(폴더), 미체크 시 글을 담는 카테고리</p>
+    <div style="margin-top:16px;display:flex;gap:8px">
+      <button class="btn btn-primary" data-act="save-add-cat">저장</button>
+      <button class="btn btn-ghost"   data-act="hide-add-cat">취소</button>
+    </div>
+  </div>` : `
+  <div style="margin-top:20px;display:flex;gap:8px">
+    <button class="btn btn-primary" data-act="show-add-cat" data-parent-key="">+ 최상위 폴더 추가</button>
+  </div>`;
+
+  return `
+  <h2 style="margin:0 0 4px">카테고리 관리</h2>
+  <p style="font-size:13px;color:var(--muted);margin-bottom:20px">폴더 안에 폴더 또는 카테고리를 중첩할 수 있습니다. 키(key)는 생성 후 변경 불가.</p>
+  <div class="card" style="overflow:hidden">
+    ${treeHtml || '<div style="padding:24px;text-align:center;opacity:.5">카테고리가 없습니다</div>'}
+  </div>
+  ${addForm}`;
+}
+
+async function addCat() {
+  const key     = ($('#nc-key')?.value  || '').trim().toLowerCase().replace(/[^a-z0-9-]/g, '');
+  const label   = ($('#nc-label')?.value|| '').trim();
+  const icon    = ($('#nc-icon')?.value || '').trim() || '📁';
+  const color   = $('#nc-color')?.value || '#6366f1';
+  const isGroup = !!$('#nc-is-group')?.checked;
+
+  if (!key)   { toast('키를 입력해주세요','error'); return; }
+  if (!label) { toast('이름을 입력해주세요','error'); return; }
+  if (findNode(S.catTree, key)) { toast('이미 존재하는 키입니다','error'); return; }
+
+  const newNode = { key, label, icon, color: isGroup ? undefined : color, children: [] };
+  if (!isGroup) newNode.contentPath = `posts/${key}`;
+
+  try {
+    // 글을 담는 leaf면 _index.md 생성
+    if (!isGroup) {
+      const indexMd = `---\ntitle: ${label}\n---\n`;
+      await saveFile(`content/posts/${key}/_index.md`, indexMd, null, `config: 카테고리 ${label} 추가`);
+    }
+
+    // 트리에 삽입
+    const parentKey = S.addCatParent;
+    if (parentKey) {
+      const found = findNode(S.catTree, parentKey);
+      if (found) found.node.children.push(newNode);
+    } else {
+      S.catTree.push(newNode);
+    }
+
+    await saveCatsConfig();
+
+    // CATS/CAT 재계산
+    const leaves = flattenTree(S.catTree);
+    CATS.splice(0, CATS.length, ...leaves);
+    Object.keys(CAT).forEach(k => delete CAT[k]);
+    CATS.forEach(c => {
+      CAT[c.key] = c;
+      if (S.catOpen[c.key]  === undefined) S.catOpen[c.key]  = false;
+      if (S.catPosts[c.key] === undefined) S.catPosts[c.key] = null;
+      if (S.counts[c.key]   === undefined) S.counts[c.key]   = 0;
+    });
+
+    S.showAddCat = false;
+    S.addCatParent = null;
+    const treeEl = document.getElementById('sidebar-tree');
+    if (treeEl) treeEl.innerHTML = renderTree();
+    updateMainContent();
+    toast(`"${label}" 추가 완료`, 'success');
+  } catch(err) { toast('추가 실패: '+err.message, 'error'); }
+}
+
+async function delCat(catKey) {
+  const found = findNode(S.catTree, catKey);
+  if (!found) return;
+  const { node, siblings } = found;
+  const cnt = S.counts[catKey] ?? 1;
+  if (cnt > 0) { toast('글이 있는 카테고리는 삭제할 수 없습니다','error'); return; }
+  if (!confirm(`"${node.label}" 카테고리를 삭제할까요?\n이 작업은 되돌릴 수 없습니다.`)) return;
+
+  try {
+    const path = `content/posts/${catKey}/_index.md`;
+    try { const { sha } = await getFile(path); await delFile(path, sha, `config: 카테고리 ${node.label} 삭제`); }
+    catch(e) { /* _index.md 없으면 진행 */ }
+
+    const idx = siblings.findIndex(n => n.key === catKey);
+    if (idx >= 0) siblings.splice(idx, 1);
+    delete CAT[catKey];
+    delete S.catOpen[catKey];
+    delete S.catPosts[catKey];
+    delete S.counts[catKey];
+    CATS.splice(CATS.findIndex(c => c.key === catKey), 1);
+
+    await saveCatsConfig();
+    const treeEl = document.getElementById('sidebar-tree');
+    if (treeEl) treeEl.innerHTML = renderTree();
+    updateMainContent();
+    toast(`"${node.label}" 삭제 완료`, 'success');
+  } catch(err) { toast('삭제 실패: '+err.message, 'error'); }
+}
+
+async function delNode(nodeKey) {
+  const found = findNode(S.catTree, nodeKey);
+  if (!found) return;
+  const { node, siblings } = found;
+  // Check no posts in any leaf descendant
+  function hasAnyPosts(n) {
+    if (!n.children || !n.children.length) return (S.counts[n.key] ?? 0) > 0;
+    return n.children.some(hasAnyPosts);
+  }
+  if (hasAnyPosts(node)) { toast('하위에 글이 있는 카테고리가 있어 삭제할 수 없습니다','error'); return; }
+  if (!confirm(`"${node.label}" 폴더를 통째로 삭제할까요?`)) return;
+
+  const idx = siblings.findIndex(n => n.key === nodeKey);
+  if (idx >= 0) siblings.splice(idx, 1);
+  await saveCatsConfig();
+  const treeEl = document.getElementById('sidebar-tree');
+  if (treeEl) treeEl.innerHTML = renderTree();
+  updateMainContent();
+  toast(`"${node.label}" 폴더 삭제 완료`, 'success');
+}
+
+async function renameNode(nodeKey, currentLabel) {
+  const newLabel = prompt(`"${currentLabel}" 의 새 이름을 입력하세요:`, currentLabel);
+  if (!newLabel || newLabel === currentLabel) return;
+  const found = findNode(S.catTree, nodeKey);
+  if (!found) return;
+  found.node.label = newLabel.trim();
+  await saveCatsConfig();
+  const treeEl = document.getElementById('sidebar-tree');
+  if (treeEl) treeEl.innerHTML = renderTree();
+  updateMainContent();
+  toast('이름을 변경했습니다', 'success');
+}
+
+/* ══ Profile ══════════════════════════════════════════ */
+async function loadProfile() {
+  try {
+    const { content, sha } = await getFile('data/profile.json');
+    S.profile    = JSON.parse(content);
+    S.profileSha = sha;
+  } catch(e) {
+    S.profile = { name:'', role:'', bio:'', avatar:'', links:[] };
+  }
+}
+
+async function saveProfile() {
+  const name   = ($('#pf-name')?.value    || '').trim();
+  const role   = ($('#pf-role')?.value    || '').trim();
+  const bio    = ($('#pf-bio')?.value     || '').trim();
+  const avatar = ($('#pf-avatar')?.value  || '').trim();
+  const links  = $$('.pf-link-row').map(row => ({
+    label: row.querySelector('.pf-link-label')?.value?.trim() || '',
+    url:   row.querySelector('.pf-link-url')?.value?.trim()   || '',
+    icon:  row.querySelector('.pf-link-icon')?.value?.trim()  || 'link',
+  })).filter(l => l.label && l.url);
+  const profile = { name, role, bio, avatar, links };
+  try {
+    const res = await saveFile('data/profile.json', JSON.stringify(profile, null, 2) + '\n', S.profileSha, 'config: 프로필 업데이트');
+    S.profileSha = res?.content?.sha ?? null;
+    S.profile    = profile;
+    toast('프로필을 저장했습니다', 'success');
+  } catch(err) { toast('저장 실패: '+err.message, 'error'); }
+}
+
+function tProfile() {
+  const p = S.profile || {};
+  const links = (p.links || []).map((l, i) => `
+  <div class="pf-link-row" style="display:flex;gap:8px;margin-bottom:8px;align-items:center">
+    <input class="pf-link-label form-input" value="${esc(l.label)}" placeholder="GitHub" style="width:100px;flex-shrink:0" />
+    <input class="pf-link-url form-input" value="${esc(l.url)}" placeholder="https://..." style="flex:1" />
+    <input class="pf-link-icon form-input" value="${esc(l.icon)}" placeholder="github" style="width:80px;flex-shrink:0" />
+    <button class="btn btn-sm btn-danger" data-act="del-link" data-idx="${i}">×</button>
+  </div>`).join('');
+  return `
+  <h2 style="margin:0 0 20px">내 정보 수정</h2>
+  <div class="card" style="padding:24px;max-width:640px">
+    <div class="form-group">
+      <label class="form-label">이름</label>
+      <input id="pf-name" class="form-input" value="${esc(p.name||'')}" placeholder="나의찬" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">역할/직함</label>
+      <input id="pf-role" class="form-input" value="${esc(p.role||'')}" placeholder="Backend Developer" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">소개글</label>
+      <textarea id="pf-bio" class="form-input" rows="3" placeholder="한두 줄 소개">${esc(p.bio||'')}</textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">아바타 경로 (static 기준, 예: img/avatar.png)</label>
+      <input id="pf-avatar" class="form-input" value="${esc(p.avatar||'')}" placeholder="img/avatar.png" />
+    </div>
+    <div class="form-group">
+      <label class="form-label" style="margin-bottom:10px">링크 <small style="color:var(--muted)">(label / URL / 아이콘: github, mail, linkedin, twitter, instagram, link)</small></label>
+      <div id="pf-links">${links}</div>
+      <button class="btn btn-ghost btn-sm" data-act="add-link" style="margin-top:6px">+ 링크 추가</button>
+    </div>
+    <div style="margin-top:8px">
+      <button class="btn btn-primary" data-act="save-profile">저장</button>
+    </div>
+  </div>`;
+}
+
+/* ══ Image Upload ══════════════════════════════════════ */
+async function uploadImage(file) {
+  const ext  = (file.name.split('.').pop() || 'png').toLowerCase();
+  const name = `img-${Date.now()}.${ext}`;
+  const path = `static/img/uploads/${name}`;
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = async () => {
+      const base64 = reader.result.split(',')[1];
+      try {
+        await saveFile(path, base64, null, `upload: ${name}`, true);
+        resolve(`/img/uploads/${name}`);
+      } catch(err) { reject(err); }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
 }
 
 /* ── Category Manage View ─────────────────────────────── */
@@ -579,6 +867,7 @@ function tShell() {
       </div>
       <div class="sidebar-footer">
         <button class="footer-btn" data-act="cats-manage">⚙️ 카테고리 관리</button>
+        <button class="footer-btn" data-act="profile">👤 내 정보 수정</button>
         <button class="footer-btn" data-act="about">✏️ 소개 편집</button>
         <a href="/" target="_blank" class="footer-btn">🔗 블로그 보기</a>
         <button class="footer-btn" data-act="logout">🚪 로그아웃</button>
@@ -591,39 +880,44 @@ function tShell() {
   </div>`;
 }
 
-/* ── Tree ────────────────────────────────────────────── */
+/* ── Tree (Composite 재귀) ────────────────────────────── */
 function renderTree() {
-  return GROUPS.map(g => {
-    const isOpen = S.groupOpen[g] !== false;
-    return `
-    <div class="tree-group ${isOpen?'open':''}" data-group-name="${esc(g)}">
-      <div class="tree-group-hd" data-act="toggle-group" data-group="${esc(g)}">
-        <span class="arrow">▶</span>
-        ${GROUP_ICONS[g]||''} ${esc(g)}
-      </div>
-      <div class="tree-group-body">
-        ${CATS.filter(c=>c.group===g).map(renderCatNode).join('')}
-      </div>
-    </div>`;
-  }).join('');
+  return (S.catTree || []).map(n => renderTreeNode(n, 0)).join('');
 }
 
-function renderCatNode(c) {
-  const isOpen = !!S.catOpen[c.key];
-  const posts  = S.catPosts[c.key];
-  const count  = S.counts[c.key];
-  return `
-  <div class="tree-cat ${isOpen?'open':''}" id="tcat-${c.key}">
-    <div class="tree-cat-hd" data-act="toggle-cat" data-cat="${c.key}">
-      <span class="arrow">▶</span>
-      <span class="cat-dot" style="background:${c.color}"></span>
-      <span class="cat-label">${c.icon} ${esc(c.label)}</span>
-      <span class="cat-cnt" id="tcnt-${c.key}">${count!=null?count:''}</span>
-    </div>
-    <div class="tree-cat-body" id="tcatbody-${c.key}">
-      ${isOpen ? (posts!==null ? renderPostItems(c.key,posts) : '<div class="tree-loading">로딩 중…</div>') : ''}
-    </div>
-  </div>`;
+function renderTreeNode(node, depth) {
+  const indent = depth * 10;
+  if (node.children && node.children.length > 0) {
+    // Group node
+    const isOpen = S.catGroupOpen?.[node.key] !== false;
+    return `
+    <div class="tree-group ${isOpen?'open':''}" id="tgrp-${node.key}" data-group-key="${node.key}">
+      <div class="tree-group-hd" data-act="toggle-group" data-group-key="${node.key}" style="padding-left:${12+indent}px">
+        <span class="arrow">▶</span>
+        ${node.icon||''} ${esc(node.label)}
+      </div>
+      <div class="tree-group-body">
+        ${node.children.map(c => renderTreeNode(c, depth + 1)).join('')}
+      </div>
+    </div>`;
+  } else {
+    // Leaf: category with posts
+    const isOpen = !!S.catOpen[node.key];
+    const posts  = S.catPosts[node.key];
+    const count  = S.counts[node.key];
+    return `
+    <div class="tree-cat ${isOpen?'open':''}" id="tcat-${node.key}">
+      <div class="tree-cat-hd" data-act="toggle-cat" data-cat="${node.key}" style="padding-left:${22+indent}px">
+        <span class="arrow">▶</span>
+        <span class="cat-dot" style="background:${node.color||'#6366f1'}"></span>
+        <span class="cat-label">${node.icon||''} ${esc(node.label)}</span>
+        <span class="cat-cnt" id="tcnt-${node.key}">${count!=null?count:''}</span>
+      </div>
+      <div class="tree-cat-body" id="tcatbody-${node.key}">
+        ${isOpen ? (posts!==null ? renderPostItems(node.key,posts) : '<div class="tree-loading">로딩 중…</div>') : ''}
+      </div>
+    </div>`;
+  }
 }
 
 function renderPostItems(catKey, posts) {
@@ -656,6 +950,8 @@ function renderTopbar() {
     title = '<strong>소개 페이지 편집</strong>';
   } else if (S.view === 'cats') {
     title = '<strong>⚙️ 카테고리 관리</strong>';
+  } else if (S.view === 'profile') {
+    title = '<strong>👤 내 정보 수정</strong>';
   }
   const back = S.view !== 'welcome'
     ? `<button class="btn btn-ghost btn-sm" data-act="welcome">← 돌아가기</button>` : '';
@@ -664,9 +960,10 @@ function renderTopbar() {
 
 /* ── Main views ──────────────────────────────────────── */
 function renderMainView() {
-  if (S.view === 'editor') return `<div class="content-inner">${tEditor()}</div>`;
-  if (S.view === 'about')  return `<div class="content-inner">${tAbout()}</div>`;
-  if (S.view === 'cats')   return `<div class="content-inner">${tCatsManage()}</div>`;
+  if (S.view === 'editor')  return `<div class="content-inner">${tEditor()}</div>`;
+  if (S.view === 'about')   return `<div class="content-inner">${tAbout()}</div>`;
+  if (S.view === 'cats')    return `<div class="content-inner">${tCatsManage()}</div>`;
+  if (S.view === 'profile') return `<div class="content-inner">${tProfile()}</div>`;
   return tWelcome();
 }
 
@@ -861,10 +1158,15 @@ function addTag(tag) {
 }
 
 /* ══ Tree Actions ═════════════════════════════════════ */
-function toggleGroup(groupName) {
-  S.groupOpen[groupName] = !S.groupOpen[groupName];
-  const el = document.querySelector(`.tree-group[data-group-name="${CSS.escape(groupName)}"]`);
-  if (el) el.classList.toggle('open', S.groupOpen[groupName]);
+function toggleGroup(groupKey) {
+  if (!S.catGroupOpen) S.catGroupOpen = {};
+  S.catGroupOpen[groupKey] = !S.catGroupOpen[groupKey];
+  const el = document.getElementById(`tgrp-${groupKey}`);
+  if (el) {
+    el.classList.toggle('open', S.catGroupOpen[groupKey]);
+    const body = el.querySelector(':scope > .tree-group-body');
+    if (body) body.style.display = S.catGroupOpen[groupKey] ? '' : 'none';
+  }
 }
 
 async function toggleCat(catKey) {
@@ -906,7 +1208,7 @@ function doLogin() {
   const v = ($('#pat-in')?.value||'').trim();
   if (!v) { toast('토큰을 입력해주세요','error'); return; }
   S.pat=v; sessionStorage.setItem('admin_pat',v);
-  S.view='welcome'; render(); loadCounts(); loadCatsConfig();
+  S.view='welcome'; render(); loadCounts(); loadCatsConfig(); loadProfile();
 }
 
 function logout() {
@@ -1053,25 +1355,72 @@ document.addEventListener('click', ev => {
   if (ev.target.closest('#login-btn')) { doLogin(); return; }
   const el = ev.target.closest('[data-act]');
   if (!el) return;
-  const { act, cat, slug, group } = el.dataset;
-  switch (act) {
-    case 'toggle-group': toggleGroup(group); break;
-    case 'toggle-cat':   toggleCat(cat); break;
-    case 'open-post':    openEdit(cat, slug); break;
-    case 'new-post':     openNew(cat); break;
-    case 'welcome':      S.view='welcome'; S.edit=null; updateMainContent(); break;
-    case 'save-draft':   savePost(true);  break;
-    case 'publish':      savePost(false); break;
-    case 'del-post':     delPost(); break;
-    case 'about':        loadAbout(); break;
-    case 'save-about':   saveAbout(); break;
-    case 'cats-manage':  S.view='cats'; S.edit=null; updateMainContent(); break;
-    case 'show-add-cat': S.showAddCat=true;  updateMainContent(); break;
-    case 'hide-add-cat': S.showAddCat=false; updateMainContent(); break;
-    case 'save-add-cat': addCat(); break;
-    case 'del-cat':      delCat(cat); break;
-    case 'logout':       logout(); break;
+  const d = el.dataset;
+  switch (d.act) {
+    // Navigation
+    case 'toggle-group':  toggleGroup(d.groupKey); break;
+    case 'toggle-cat':    toggleCat(d.cat); break;
+    case 'open-post':     openEdit(d.cat, d.slug); break;
+    case 'new-post':      openNew(d.cat); break;
+    case 'welcome':       S.view='welcome'; S.edit=null; updateMainContent(); break;
+    // Post editor
+    case 'save-draft':    savePost(true);  break;
+    case 'publish':       savePost(false); break;
+    case 'del-post':      delPost(); break;
+    // About
+    case 'about':         loadAbout(); break;
+    case 'save-about':    saveAbout(); break;
+    // Categories (Composite)
+    case 'cats-manage':   S.view='cats'; S.edit=null; updateMainContent(); break;
+    case 'show-add-cat':  S.showAddCat=true; S.addCatParent=d.parentKey||null; updateMainContent(); break;
+    case 'hide-add-cat':  S.showAddCat=false; updateMainContent(); break;
+    case 'save-add-cat':  addCat(); break;
+    case 'del-cat':       delCat(d.cat); break;
+    case 'del-node':      delNode(d.nodeKey); break;
+    case 'rename-node':   renameNode(d.nodeKey, d.nodeLabel); break;
+    // Profile
+    case 'profile':       S.view='profile'; S.edit=null; updateMainContent(); break;
+    case 'save-profile':  saveProfile(); break;
+    case 'add-link': {
+      const wrap = document.getElementById('pf-links');
+      if (!wrap) break;
+      const row = document.createElement('div');
+      row.className = 'pf-link-row';
+      row.style.cssText = 'display:flex;gap:8px;margin-bottom:8px;align-items:center';
+      row.innerHTML = `
+        <input class="pf-link-label form-input" placeholder="GitHub" style="width:100px;flex-shrink:0" />
+        <input class="pf-link-url form-input" placeholder="https://..." style="flex:1" />
+        <input class="pf-link-icon form-input" placeholder="github" style="width:80px;flex-shrink:0" />
+        <button class="btn btn-sm btn-danger" data-act="del-link">×</button>`;
+      wrap.appendChild(row);
+      break;
+    }
+    case 'del-link':
+      el.closest('.pf-link-row')?.remove();
+      break;
+    // Auth
+    case 'logout':        logout(); break;
   }
+});
+
+// Image drag-and-drop into editor
+document.addEventListener('dragover', ev => {
+  if (S.view !== 'editor') return;
+  ev.preventDefault();
+});
+document.addEventListener('drop', async ev => {
+  if (S.view !== 'editor') return;
+  const files = [...(ev.dataTransfer?.files || [])].filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  ev.preventDefault();
+  toast('이미지 업로드 중…', 'info');
+  try {
+    const urls = await Promise.all(files.map(uploadImage));
+    const insert = urls.map(u => `![](${u})`).join('\n');
+    if (S.mde) S.mde.value(S.mde.value() + '\n' + insert);
+    else { const ta = document.getElementById('ed-body'); if (ta) ta.value += '\n' + insert; }
+    toast(`이미지 ${urls.length}개 업로드 완료`, 'success');
+  } catch(err) { toast('업로드 실패: '+err.message, 'error'); }
 });
 
 document.addEventListener('keydown', ev => {
@@ -1080,7 +1429,7 @@ document.addEventListener('keydown', ev => {
 
 /* ══ Init ══════════════════════════════════════════════ */
 render();
-if (S.pat) { loadCounts(); loadCatsConfig(); }
+if (S.pat) { loadCounts(); loadCatsConfig(); loadProfile(); }
 </script>
 </body>
 </html>

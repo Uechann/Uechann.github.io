@@ -1,0 +1,18 @@
+{{ define "main" }}
+<div class="archive-list">
+  <h1 class="page-title" style="margin-bottom:28px">아카이브</h1>
+  {{- $pages := where .Site.RegularPages "Section" "posts" -}}
+  {{- $byYear := $pages.GroupByDate "2006" -}}
+  {{- range $byYear -}}
+  <div class="archive-year">
+    <div class="archive-year-title">{{ .Key }}</div>
+    {{- range .Pages -}}
+    <div class="archive-item">
+      <time class="archive-date">{{ .Date.Format "01월 02일" }}</time>
+      <a href="{{ .RelPermalink }}">{{ .Title }}</a>
+    </div>
+    {{- end -}}
+  </div>
+  {{- end -}}
+</div>
+{{ end }}

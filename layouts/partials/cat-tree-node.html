@@ -1,0 +1,44 @@
+{{- $node  := .node -}}
+{{- $site  := .site -}}
+{{- $depth := .depth | default 0 -}}
+
+{{- if and $node.children (gt (len $node.children) 0) -}}
+  {{/* Group node: has children */}}
+  {{- $tag := "li" -}}
+  {{- if gt $depth 0 -}}{{- $tag = "li" -}}{{- end -}}
+  <li class="{{ if eq $depth 0 }}cat-group open{{ else }}cat-subgroup open{{ end }}" data-key="{{ $node.key }}" role="treeitem" aria-expanded="true">
+    {{- if eq $depth 0 -}}
+    <button class="cat-group-btn" type="button" aria-expanded="true">
+      <span class="cat-group-arrow">▶</span>
+      <span class="cat-icon">{{ $node.icon }}</span>
+      <span class="cat-name">{{ $node.label }}</span>
+    </button>
+    {{- else -}}
+    <button class="cat-subgroup-btn" type="button" aria-expanded="true">
+      <span class="cat-subgroup-arrow">▶</span>
+      <span class="cat-icon">{{ $node.icon }}</span>
+      <span class="cat-name">{{ $node.label }}</span>
+    </button>
+    {{- end -}}
+    <ul class="cat-children" role="group">
+      {{- range $node.children -}}
+        {{- partial "cat-tree-node.html" (dict "node" . "site" $site "depth" (add $depth 1)) -}}
+      {{- end -}}
+    </ul>
+  </li>
+
+{{- else -}}
+  {{/* Leaf node: actual category */}}
+  {{- $contentPath := $node.contentPath | default (printf "posts/%s" $node.key) -}}
+  {{- $section := $site.GetPage (printf "/%s/" $contentPath) -}}
+  {{- $count := 0 -}}
+  {{- if $section -}}{{- $count = $section.RegularPages | len -}}{{- end -}}
+  <li class="cat-leaf{{ if eq $count 0 }} cat-empty{{ end }}" role="treeitem">
+    <a href="{{ if $section }}{{ $section.RelPermalink }}{{ else }}/{{ $contentPath }}/{{ end }}"
+       {{- with $node.color }} style="--cat-color: {{ . }}"{{- end -}}>
+      <span class="cat-icon">{{ $node.icon }}</span>
+      <span class="cat-name">{{ $node.label }}</span>
+      {{- if gt $count 0 -}}<span class="cat-count">{{ $count }}</span>{{- end -}}
+    </a>
+  </li>
+{{- end -}}

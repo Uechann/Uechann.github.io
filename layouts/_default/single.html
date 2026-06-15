@@ -1,0 +1,47 @@
+{{ define "main" }}
+<div class="post-wrap">
+  <article>
+    <header class="post-header">
+      {{ partial "breadcrumb.html" . }}
+
+      <h1 class="post-title">{{ .Title }}</h1>
+
+      <div class="post-meta">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006년 01월 02일" }}</time>
+        {{- if .ReadingTime -}}
+        <span class="post-meta-dot">·</span>
+        <span>{{ .ReadingTime }}분 읽기</span>
+        {{- end -}}
+        {{- if .Params.draft -}}
+        <span class="post-meta-dot">·</span>
+        <span style="color:var(--warn);font-weight:600">초안</span>
+        {{- end -}}
+      </div>
+
+      {{- with .Params.tags -}}
+      <div class="post-tags-header">
+        {{- range . -}}
+        <a href="/tags/{{ . | urlize }}/" class="post-tag-link">{{ . }}</a>
+        {{- end -}}
+      </div>
+      {{- end -}}
+    </header>
+
+    {{- with .Params.image -}}
+    <img class="post-thumb" src="{{ . }}" alt="{{ $.Title }}" />
+    {{- end -}}
+
+    <div class="post-content">
+      {{ .Content }}
+    </div>
+
+    {{ partial "comments.html" . }}
+  </article>
+
+  {{- if .TableOfContents | ne "" -}}
+  <aside aria-label="목차">
+    {{ partial "toc.html" . }}
+  </aside>
+  {{- end -}}
+</div>
+{{ end }}

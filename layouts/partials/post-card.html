@@ -1,0 +1,50 @@
+{{- $cats := index hugo.Data "categories" -}}
+
+{{- /* Find category icon/color from tree */ -}}
+{{- $catIcon  := "" -}}
+{{- $catLabel := "" -}}
+{{- $catColor := "#3b82f6" -}}
+{{- range .Params.categories -}}
+  {{- $cLabel := . -}}
+  {{- range $cats.tree -}}
+    {{- range .children -}}
+      {{- if eq .label $cLabel -}}
+        {{- $catIcon  = .icon -}}
+        {{- $catLabel = .label -}}
+        {{- $catColor = .color | default "#3b82f6" -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+<a href="{{ .RelPermalink }}" class="post-card">
+  <div class="post-card-thumb">
+    {{- with .Params.image -}}
+    <img src="{{ . }}" alt="{{ $.Title }}" loading="lazy" />
+    {{- else -}}
+    <div class="post-card-thumb-placeholder" style="background: linear-gradient(135deg, {{ $catColor }}22, {{ $catColor }}44)">
+      {{ if $catIcon }}{{ $catIcon }}{{ else }}📝{{ end }}
+    </div>
+    {{- end -}}
+  </div>
+  <div class="post-card-body">
+    <div class="post-card-meta">
+      {{- if $catLabel -}}
+      <span class="post-card-cat">{{ $catIcon }} {{ $catLabel }}</span>
+      {{- end -}}
+      <time>{{ .Date.Format "2006년 01월 02일" }}</time>
+      {{- if .ReadingTime -}}<span>· {{ .ReadingTime }}분</span>{{- end -}}
+    </div>
+    <h2 class="post-card-title">{{ .Title }}</h2>
+    {{- with .Description -}}
+    <p class="post-card-desc">{{ . }}</p>
+    {{- else -}}
+    <p class="post-card-desc">{{ .Summary | plainify | truncate 120 }}</p>
+    {{- end -}}
+    {{- with .Params.tags -}}
+    <div class="post-card-tags">
+      {{- range first 3 . -}}<span class="post-tag">{{ . }}</span>{{- end -}}
+    </div>
+    {{- end -}}
+  </div>
+</a>

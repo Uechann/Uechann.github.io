@@ -1,0 +1,27 @@
+{{- $cats := index hugo.Data "categories" -}}
+{{- $postCats := .Params.categories -}}
+
+{{- /* Find matching leaf in tree */ -}}
+{{- $crumbs := slice -}}
+{{- range $postCats -}}
+  {{- $target := . -}}
+  {{- range $cats.tree -}}
+    {{- $group := . -}}
+    {{- range .children -}}
+      {{- if eq .label $target -}}
+        {{- $crumbs = slice $group.label .label -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+
+{{- if $crumbs -}}
+<nav class="post-breadcrumb" aria-label="breadcrumb">
+  <a href="/">홈</a>
+  <span class="post-breadcrumb-sep">›</span>
+  {{- range $i, $c := $crumbs -}}
+  <span>{{ $c }}</span>
+  {{- if lt $i (sub (len $crumbs) 1) -}}<span class="post-breadcrumb-sep">›</span>{{- end -}}
+  {{- end -}}
+</nav>
+{{- end -}}

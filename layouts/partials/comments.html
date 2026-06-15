@@ -1,0 +1,35 @@
+{{- $cfg := .Site.Params.comments -}}
+{{- if and $cfg.enabled (eq $cfg.provider "giscus") -}}
+{{- $g := $cfg.giscus -}}
+<div class="comments-wrap">
+  <div class="comments-title">댓글</div>
+  <script src="https://giscus.app/client.js"
+    data-repo="{{ $g.repo }}"
+    data-repo-id="{{ $g.repoID }}"
+    data-category="{{ $g.category }}"
+    data-category-id="{{ $g.categoryID }}"
+    data-mapping="{{ $g.mapping | default "pathname" }}"
+    data-strict="0"
+    data-reactions-enabled="{{ $g.reactionsEnabled | default 1 }}"
+    data-emit-metadata="{{ $g.emitMetadata | default 0 }}"
+    data-input-position="{{ $g.inputPosition | default "top" }}"
+    data-theme="{{ $g.lightTheme | default "light" }}"
+    data-lang="{{ $g.lang | default "ko" }}"
+    crossorigin="anonymous"
+    async>
+  </script>
+  <script>
+    // Switch giscus theme on dark mode toggle
+    (function(){
+      function setGiscusTheme(theme) {
+        var iframe = document.querySelector('iframe.giscus-frame');
+        if (!iframe) return;
+        iframe.contentWindow.postMessage({ giscus: { setConfig: { theme: theme === 'dark' ? '{{ $g.darkTheme | default "dark_dimmed" }}' : '{{ $g.lightTheme | default "light" }}' } } }, 'https://giscus.app');
+      }
+      document.getElementById('theme-toggle')?.addEventListener('click', function(){
+        setTimeout(function(){ setGiscusTheme(document.documentElement.getAttribute('data-theme')); }, 50);
+      });
+    })();
+  </script>
+</div>
+{{- end -}}

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Locale | default "ko" }}" data-theme="auto">
+<head>
+  {{ partial "head.html" . }}
+</head>
+<body>
+  {{/* Mobile header */}}
+  <header class="mobile-header">
+    <a href="/" class="mobile-logo">🛠️ 의찬의 블로그</a>
+    <button id="sidebar-toggle" aria-label="메뉴 열기" style="background:none;border:none;cursor:pointer;padding:4px">
+      <div id="hamburger" class="hamburger">
+        <span></span><span></span><span></span>
+      </div>
+    </button>
+  </header>
+
+  <div class="page-wrap">
+    <aside class="sidebar" id="sidebar" aria-label="사이드바">
+      {{ partial "sidebar.html" . }}
+    </aside>
+
+    <main class="page-main" id="main-content">
+      {{ block "main" . }}{{ end }}
+    </main>
+  </div>
+
+  <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+  <script src="/js/blog.js"></script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{{- $profile := index hugo.Data "profile" -}}
+{{- $cats    := index hugo.Data "categories" -}}
+{{- $site    := .Site -}}
+
+<div class="sb-profile">
+  {{- if $profile.avatar -}}
+  <img class="sb-avatar" src="/{{ $profile.avatar }}" alt="{{ $profile.name }}" />
+  {{- else -}}
+  <div class="sb-avatar-placeholder">{{ substr $profile.name 0 1 }}</div>
+  {{- end -}}
+  <div class="sb-name">{{ $profile.name }}</div>
+  <div class="sb-role">{{ $profile.role }}</div>
+  <p class="sb-bio">{{ $profile.bio }}</p>
+  <div class="sb-links">
+    {{- range $profile.links -}}
+    <a href="{{ .url }}" class="sb-link" title="{{ .label }}"
+      {{- if not (strings.HasPrefix .url "mailto") }} target="_blank" rel="noopener noreferrer"{{- end }}>
+      {{- partial "icon.html" .icon -}}
+    </a>
+    {{- end -}}
+  </div>
+</div>
+
+<nav class="sb-nav" aria-label="카테고리 내비게이션">
+  <div class="sb-nav-label">카테고리</div>
+  <ul class="cat-tree" role="tree">
+    {{- range $cats.tree -}}
+      {{- partial "cat-tree-node.html" (dict "node" . "site" $site "depth" 0) -}}
+    {{- end -}}
+  </ul>
+
+  <div class="sb-divider"></div>
+  <a href="/page/about/" class="sb-static-link{{ if (eq .RelPermalink "/page/about/") }} active{{ end }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M6 20v-2a6 6 0 0 1 12 0v2"/></svg>
+    소개
+  </a>
+  <a href="/page/archives/" class="sb-static-link{{ if (eq .RelPermalink "/page/archives/") }} active{{ end }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16v4H4z"/><path d="M4 8v12h16V8"/><path d="M10 12h4"/></svg>
+    아카이브
+  </a>
+</nav>
+
+<div class="sb-footer">
+  <button class="theme-toggle" id="theme-toggle" aria-label="테마 변경">
+    <span class="theme-icon-light">☀️ 라이트</span>
+    <span class="theme-icon-dark">🌙 다크</span>
+  </button>
+  <a href="/admin/" class="sb-admin-link">관리자</a>
+</div>
