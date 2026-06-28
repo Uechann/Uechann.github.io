@@ -1,7 +1,7 @@
 # 의찬의 개발 블로그 — 자주 쓰는 명령어
 # 사용법: make <target> [SLUG=글-제목-영어]
 
-.PHONY: dev build \
+.PHONY: dev build sync sync-all \
         new-java new-spring new-database new-network new-infra \
         new-wooteco-mission new-wooteco-study new-wooteco-activity \
         new-troubleshooting new-retrospect help
@@ -13,6 +13,16 @@ dev:
 ## 프로덕션 빌드 확인
 build:
 	hugo build --gc --minify
+
+## Notion 발행 글을 Hugo 콘텐츠로 동기화 (.env 필요)
+sync:
+	@[ -d node_modules ] || npm install
+	node scripts/notion-sync.mjs
+
+## Notion 작성중 글까지 draft 로 동기화
+sync-all:
+	@[ -d node_modules ] || npm install
+	node scripts/notion-sync.mjs --all
 
 # ── 새 글 생성 ────────────────────────────────────────────────────
 # SLUG: 영어 소문자와 하이픈만 사용 (예: generic-type-erasure)

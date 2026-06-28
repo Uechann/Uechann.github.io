@@ -1,0 +1,19 @@
+{
+  "_comment": "Notion '카테고리' select 값 → Hugo 섹션/표시명 매핑. data/categories.json 트리와 일치시킬 것. 매핑에 없는 값을 만나면 동기화가 중단됩니다.",
+  "map": {
+    "Java": { "section": "java", "category": "Java" },
+    "Spring": { "section": "spring", "category": "Spring" },
+    "Database": { "section": "database", "category": "Database" },
+    "Network": { "section": "network", "category": "Network" },
+    "네트워크": { "section": "network", "category": "Network" },
+    "Infra": { "section": "infra", "category": "Infra" },
+    "인프라": { "section": "infra", "category": "Infra" },
+    "Troubleshooting": { "section": "troubleshooting", "category": "Troubleshooting" },
+    "트러블슈팅": { "section": "troubleshooting", "category": "Troubleshooting" },
+    "Retrospect": { "section": "retrospect", "category": "회고" },
+    "회고": { "section": "retrospect", "category": "회고" },
+    "우테코-미션": { "section": "wooteco-mission", "category": "우아한테크코스" },
+    "우테코-학습": { "section": "wooteco-study", "category": "우아한테크코스" },
+    "우테코-활동": { "section": "wooteco-activity", "category": "우아한테크코스" }
+  }
+}

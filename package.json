@@ -1,0 +1,14 @@
+{
+  "name": "uechann-blog-tools",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "의찬의 개발 블로그 빌드 보조 도구 (Notion → Hugo 동기화 등)",
+  "scripts": {
+    "sync": "node scripts/notion-sync.mjs"
+  },
+  "dependencies": {
+    "@notionhq/client": "^2.2.15",
+    "notion-to-md": "^3.1.1"
+  }
+}
