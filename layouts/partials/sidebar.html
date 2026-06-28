@@ -24,6 +24,12 @@
 </div>
 
 <nav class="sb-nav" aria-label="카테고리 내비게이션">
+  <a href="/" class="sb-static-link{{ if .IsHome }} active{{ end }}">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9 21v-6h6v6"/></svg>
+    홈
+  </a>
+  <div class="sb-divider"></div>
+
   <div class="sb-nav-label">카테고리</div>
   <ul class="cat-tree" role="tree">
     {{- range $cats.tree -}}
