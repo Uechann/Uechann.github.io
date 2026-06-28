@@ -37,6 +37,14 @@ params:
     - posts
   rssFullContent: true
 
+  # 검색 엔진 소유권 인증 코드 (각 콘솔의 'HTML 태그' 방식 content 값)
+  verification:
+    google: "GHkeQaBdLyAbuIjDf08-m0lk2nK73Lc3wE0a_obm-m4"   # Google Search Console
+    naver: "fed111bc4600c5a5c0703955216f8789bb5a6226"    # Naver Search Advisor
+
+  # 글에 image가 없을 때 사용할 기본 OG 이미지 (static/ 기준 경로, 선택)
+  defaultImage: ""   # 예: "/img/og-default.png"
+
   dateFormat:
     published: "2006년 01월 02일"
 

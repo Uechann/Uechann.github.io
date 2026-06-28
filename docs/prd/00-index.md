@@ -12,6 +12,7 @@
 | PRD-07 | [implemented/07-admin-ux.md](../implemented/07-admin-ux.md) | 커스텀 관리자 페이지 | ✅ 완료 | - |
 | PRD-08 | [implemented/08-typography.md](../implemented/08-typography.md) | 블로그 타이포그래피 및 가독성 개선 | ✅ 완료 | - |
 | PRD-09 | [09-categories-v2.md](./09-categories-v2.md) | 카테고리 구조 v2 재편 | 🔴 미구현 | PRD-07 |
+| PRD-15 | [15-seo-search-console.md](./15-seo-search-console.md) | 검색 엔진 노출 (Google/Naver SEO) | 🔴 미구현 | - |
 
 ---
 

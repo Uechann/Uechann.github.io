@@ -1,15 +1,35 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }} — {{ .Site.Title }}{{ end }}</title>
-<meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ with .Summary }}{{ . }}{{ else }}{{ .Site.Title }}{{ end }}{{ end }}" />
+{{- $title := cond .IsHome .Site.Title (printf "%s — %s" .Title .Site.Title) }}
+{{- $desc := cond (ne (string .Description) "") (string .Description) (cond (ne (string .Summary) "") (.Summary | truncate 160) .Site.Title) }}
+{{- $image := "" }}
+{{- with .Params.image }}{{ $image = . | absURL }}{{ else }}{{ with .Site.Params.defaultImage }}{{ $image = . | absURL }}{{ end }}{{ end }}
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $desc }}" />
 
-{{- if not .IsHome }}
-<meta property="og:title" content="{{ .Title }}" />
-<meta property="og:description" content="{{ with .Description }}{{ . }}{{ else }}{{ .Summary | truncate 160 }}{{ end }}" />
+{{- /* 검색 엔진 소유권 인증 */}}
+{{- with .Site.Params.verification.google }}
+<meta name="google-site-verification" content="{{ . }}" />
+{{- end }}
+{{- with .Site.Params.verification.naver }}
+<meta name="naver-site-verification" content="{{ . }}" />
+{{- end }}
+
+{{- /* Open Graph */}}
+<meta property="og:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}" />
+<meta property="og:description" content="{{ $desc }}" />
 <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
 <meta property="og:url" content="{{ .Permalink }}" />
-{{- with .Params.image }}<meta property="og:image" content="{{ . | absURL }}" />{{- end }}
-{{- end }}
+<meta property="og:site_name" content="{{ .Site.Title }}" />
+<meta property="og:locale" content="ko_KR" />
+{{- with $image }}<meta property="og:image" content="{{ . }}" />{{- end }}
+{{- if .IsPage }}{{ with .Date }}<meta property="article:published_time" content="{{ .Format "2006-01-02T15:04:05Z07:00" }}" />{{ end }}{{ end }}
+
+{{- /* Twitter Card */}}
+<meta name="twitter:card" content="{{ if $image }}summary_large_image{{ else }}summary{{ end }}" />
+<meta name="twitter:title" content="{{ if .IsHome }}{{ .Site.Title }}{{ else }}{{ .Title }}{{ end }}" />
+<meta name="twitter:description" content="{{ $desc }}" />
+{{- with $image }}<meta name="twitter:image" content="{{ . }}" />{{- end }}
 
 <meta name="theme-color" content="#3b82f6" />
 <link rel="canonical" href="{{ .Permalink }}" />
