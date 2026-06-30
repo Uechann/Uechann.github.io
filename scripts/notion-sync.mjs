@@ -238,6 +238,13 @@ async function main() {
       }
     } catch { /* 리포트 실패는 변환을 막지 않음 */ }
 
+    // 섹션 list 페이지(_index.md) 보장 — 없으면 사이드바에서 숨겨지고 링크가 404
+    const sectionIndex = path.join(ROOT, "content", "posts", mapped.section, "_index.md");
+    if (!fs.existsSync(sectionIndex)) {
+      fs.mkdirSync(path.dirname(sectionIndex), { recursive: true });
+      fs.writeFileSync(sectionIndex, `---\ntitle: ${y(mapped.category)}\n---\n`);
+    }
+
     // 본문 변환 (이미지 트랜스포머가 currentBundle 에 다운로드)
     currentBundle = bundleDir;
     fs.mkdirSync(bundleDir, { recursive: true });

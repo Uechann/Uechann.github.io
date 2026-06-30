@@ -14,6 +14,7 @@
 | PRD-09 | [09-categories-v2.md](./09-categories-v2.md) | 카테고리 구조 v2 재편 | 🔴 미구현 | PRD-07 |
 | PRD-15 | [15-seo-search-console.md](./15-seo-search-console.md) | 검색 엔진 노출 (Google/Naver SEO) | 🔴 미구현 | - |
 | PRD-16 | [16-notion-sync.md](./16-notion-sync.md) | Notion → Hugo 글 자동 동기화 | 🔴 미구현 | PRD-13 |
+| PRD-17 | [17-engagement-features.md](./17-engagement-features.md) | 블로그 매력도·재미 요소 | 🔴 미구현 | - |
 
 ---
 
