@@ -36,7 +36,7 @@ const OPT_FORCE = ARGS.has("--force");
 
 // notion-to-md 가 기본 지원하는 블록 타입 (리포트용 화이트리스트)
 const SUPPORTED_BLOCKS = new Set([
-  "paragraph", "heading_1", "heading_2", "heading_3",
+  "paragraph", "heading_1", "heading_2", "heading_3", "heading_4",
   "bulleted_list_item", "numbered_list_item", "to_do", "toggle",
   "code", "quote", "callout", "divider", "image", "table", "table_row",
   "bookmark", "embed", "video", "file", "pdf", "equation",
@@ -86,6 +86,7 @@ const readSelect = (p) => p?.select?.name ?? "";
 const readMulti = (p) => p?.multi_select?.map((t) => t.name) ?? [];
 const readDate = (p) => p?.date?.start ?? "";
 const readNumber = (p) => (typeof p?.number === "number" ? p.number : null);
+const readCheckbox = (p) => (typeof p?.checkbox === "boolean" ? p.checkbox : null);
 const readFiles = (p) =>
   (p?.files ?? []).map((f) => (f.type === "external" ? f.external.url : f.file?.url)).filter(Boolean);
 
@@ -161,6 +162,12 @@ async function main() {
   } while (cursor);
 
   const report = { synced: [], skipped: [], unsupported: {}, imageErrors: [], errors: [] };
+  // Notion H4 (notion-to-md 가 기본 변환하지 않아 본문에서 누락됨 → 직접 변환)
+  n2m.setCustomTransformer("heading_4", (block) => {
+    const text = (block.heading_4?.rich_text ?? []).map((t) => t.plain_text).join("");
+    return `#### ${text}`;
+  });
+
   let currentSlug = "";
   const seenIds = new Set();
 
@@ -169,14 +176,35 @@ async function main() {
     const title = readTitle(pickProp(props, ["제목", "Name", "Title", "이름"]));
     if (!title) continue;
 
-    const statusVal = readSelect(pickProp(props, ["상태", "Status"]));
-    const isPublished = statusVal === "발행" || statusVal === "Published" || statusVal === "";
-    if (!isPublished && !OPT_ALL) { report.skipped.push(`${title} (상태=${statusVal})`); continue; }
+    // 발행 여부: 체크박스(완료 여부) 우선, 없으면 Select(상태) 폴백, 둘 다 없으면 발행으로 간주
+    const doneCheck = readCheckbox(pickProp(props, ["완료", "완료 여부", "완료여부", "발행", "Done", "Published", "Complete", "Publish"]));
+    let isPublished;
+    if (doneCheck !== null) {
+      isPublished = doneCheck;
+    } else {
+      const statusVal = readSelect(pickProp(props, ["상태", "Status"]));
+      isPublished = statusVal === "발행" || statusVal === "Published" || statusVal === "";
+    }
+    if (!isPublished && !OPT_ALL) { report.skipped.push(`${title} (작성중)`); continue; }
 
-    const catVal = readSelect(pickProp(props, ["카테고리", "Category"]));
-    const mapped = mapCfg[catVal];
+    // 카테고리: select 또는 multi_select(예: 종류) 지원.
+    // 매핑되는 첫 값을 섹션으로 쓰고, 매핑 안 되는 나머지 값은 태그로 흡수.
+    const catProp = pickProp(props, ["카테고리", "Category", "종류", "분류"]);
+    const catValues = catProp?.type === "multi_select"
+      ? readMulti(catProp)
+      : (catProp?.select?.name ? [catProp.select.name] : []);
+    let mapped = null;
+    const extraTags = [];
+    for (const v of catValues) {
+      if (!mapped && mapCfg[v]) mapped = mapCfg[v];
+      else extraTags.push(v);
+    }
+    if (!catValues.length) {
+      report.skipped.push(`${title} (카테고리 미지정)`);
+      continue;
+    }
     if (!mapped) {
-      report.errors.push(`매핑 없는 카테고리 "${catVal}" → ${title} (data/notion-map.json 에 추가 필요)`);
+      report.errors.push(`매핑 없는 카테고리 [${catValues.join(", ")}] → ${title} (data/notion-map.json 에 추가 필요)`);
       continue;
     }
 
@@ -226,7 +254,7 @@ async function main() {
 
     // front matter
     const date = readDate(pickProp(props, ["발행일", "Date", "날짜"])) || page.created_time.slice(0, 10);
-    const tags = readMulti(pickProp(props, ["태그", "Tags"]));
+    const tags = [...new Set([...extraTags, ...readMulti(pickProp(props, ["태그", "Tags"]))])];
     const description = readText(pickProp(props, ["요약", "Description", "설명"]));
     const series = readText(pickProp(props, ["시리즈", "Series"]));
     const seriesOrder = readNumber(pickProp(props, ["순서", "Order", "SeriesOrder"]));

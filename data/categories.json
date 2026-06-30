@@ -6,6 +6,7 @@
       "icon": "📚",
       "children": [
         { "key": "java",     "label": "Java",     "icon": "☕", "color": "#f59e0b", "contentPath": "posts/java",     "children": [] },
+        { "key": "oop",      "label": "OOP",      "icon": "🧩", "color": "#a855f7", "contentPath": "posts/oop",      "children": [] },
         { "key": "spring",   "label": "Spring",   "icon": "🌱", "color": "#10b981", "contentPath": "posts/spring",   "children": [] },
         { "key": "database", "label": "Database", "icon": "🗄️", "color": "#6366f1", "contentPath": "posts/database", "children": [] },
         { "key": "network",  "label": "Network",  "icon": "🌐", "color": "#06b6d4", "contentPath": "posts/network",  "children": [] },

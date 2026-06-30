@@ -2,6 +2,8 @@
   "_comment": "Notion '카테고리' select 값 → Hugo 섹션/표시명 매핑. data/categories.json 트리와 일치시킬 것. 매핑에 없는 값을 만나면 동기화가 중단됩니다.",
   "map": {
     "Java": { "section": "java", "category": "Java" },
+    "OOP": { "section": "oop", "category": "OOP" },
+    "객체지향": { "section": "oop", "category": "OOP" },
     "Spring": { "section": "spring", "category": "Spring" },
     "Database": { "section": "database", "category": "Database" },
     "Network": { "section": "network", "category": "Network" },
