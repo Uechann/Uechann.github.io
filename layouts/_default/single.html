@@ -1,4 +1,5 @@
 {{ define "main" }}
+<div class="reading-progress" id="reading-progress"></div>
 <div class="post-wrap">
   <article>
     <header class="post-header">
@@ -10,7 +11,7 @@
         <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006년 01월 02일" }}</time>
         {{- if .ReadingTime -}}
         <span class="post-meta-dot">·</span>
-        <span>{{ .ReadingTime }}분 읽기</span>
+        <span>☕ 약 {{ .ReadingTime }}분</span>
         {{- end -}}
         {{- if .Params.draft -}}
         <span class="post-meta-dot">·</span>
@@ -34,6 +35,38 @@
     <div class="post-content">
       {{ .Content }}
     </div>
+
+    {{- $related := .Site.RegularPages.Related . | first 3 -}}
+    {{- with $related }}
+    <section class="post-related">
+      <h2 class="post-related-title">🔗 관련 글</h2>
+      <div class="related-list">
+        {{- range . }}
+        <a class="related-card" href="{{ .RelPermalink }}">
+          {{- with .Params.categories }}<span class="related-cat">{{ index . 0 }}</span>{{- end }}
+          <span class="related-title">{{ .Title }}</span>
+        </a>
+        {{- end }}
+      </div>
+    </section>
+    {{- end }}
+
+    {{- if or .PrevInSection .NextInSection }}
+    <nav class="post-nav" aria-label="이전/다음 글">
+      {{- with .PrevInSection }}
+      <a class="post-nav-item prev" href="{{ .RelPermalink }}">
+        <span class="post-nav-label">← 이전 글</span>
+        <span class="post-nav-title">{{ .Title }}</span>
+      </a>
+      {{- else }}<span class="post-nav-item empty"></span>{{- end }}
+      {{- with .NextInSection }}
+      <a class="post-nav-item next" href="{{ .RelPermalink }}">
+        <span class="post-nav-label">다음 글 →</span>
+        <span class="post-nav-title">{{ .Title }}</span>
+      </a>
+      {{- else }}<span class="post-nav-item empty"></span>{{- end }}
+    </nav>
+    {{- end }}
 
     {{ partial "comments.html" . }}
   </article>

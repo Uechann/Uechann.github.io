@@ -167,6 +167,19 @@ function initHeadingAnchors() {
   });
 }
 
+/* ── 7. Reading Progress Bar ─────────────────────────────── */
+function initReadingProgress() {
+  const bar = document.getElementById('reading-progress');
+  if (!bar || !document.querySelector('.post-content')) return;
+  function update() {
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.width = (total > 0 ? (window.scrollY / total) * 100 : 0) + '%';
+  }
+  window.addEventListener('scroll', update, { passive: true });
+  window.addEventListener('resize', update);
+  update();
+}
+
 /* ── Init ────────────────────────────────────────────────── */
 document.addEventListener('DOMContentLoaded', () => {
   initThemeToggle();
@@ -175,4 +188,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initMobileSidebar();
   initCopyCode();
   initHeadingAnchors();
+  initReadingProgress();
 });

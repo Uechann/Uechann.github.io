@@ -8,6 +8,16 @@ hasCJKLanguage: true
 
 paginate: 10
 
+related:
+  includeNewer: true
+  threshold: 60
+  toLower: true
+  indices:
+    - name: tags
+      weight: 100
+    - name: categories
+      weight: 70
+
 taxonomies:
   category: categories
   tag: tags

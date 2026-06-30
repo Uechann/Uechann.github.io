@@ -1,0 +1,34 @@
+{{- /* 포스팅 잔디 — 최근 53주(약 1년) 글 발행 히트맵 */ -}}
+{{- $posts := where .Site.RegularPages "Section" "posts" -}}
+{{- $counts := dict -}}
+{{- range $posts -}}
+  {{- $k := .Date.Format "2006-01-02" -}}
+  {{- $counts = merge $counts (dict $k (add (int (index $counts $k | default 0)) 1)) -}}
+{{- end -}}
+{{- $today := now -}}
+{{- $start := $today.AddDate 0 0 -370 -}}
+<div class="heatmap" role="img" aria-label="최근 1년 글 발행 활동">
+  <div class="cal-grid">
+  {{- range $w := seq 0 52 -}}
+    <div class="cal-week">
+    {{- range $d := seq 0 6 -}}
+      {{- $offset := add (mul $w 7) $d -}}
+      {{- $date := $start.AddDate 0 0 $offset -}}
+      {{- $k := $date.Format "2006-01-02" -}}
+      {{- $c := int (index $counts $k | default 0) -}}
+      {{- $lvl := cond (eq $c 0) 0 (cond (eq $c 1) 1 (cond (eq $c 2) 2 (cond (eq $c 3) 3 4))) -}}
+      <span class="cal-cell cal-l{{ $lvl }}" title="{{ $k }} · 글 {{ $c }}개"></span>
+    {{- end -}}
+    </div>
+  {{- end -}}
+  </div>
+  <div class="cal-legend">
+    <span>적음</span>
+    <span class="cal-cell cal-l0"></span>
+    <span class="cal-cell cal-l1"></span>
+    <span class="cal-cell cal-l2"></span>
+    <span class="cal-cell cal-l3"></span>
+    <span class="cal-cell cal-l4"></span>
+    <span>많음</span>
+  </div>
+</div>
